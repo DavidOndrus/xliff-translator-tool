@@ -6,6 +6,18 @@
         mc:Ignorable="d"
         Title="Xliff Translator Tool" Height="350" Width="525">
     <Grid>
-        
+        <Menu x:Name="FileMenuItem" Height="25" VerticalAlignment="Top" VerticalContentAlignment="Center">
+            <Menu.ItemsPanel>
+                <ItemsPanelTemplate>
+                    <Grid/>
+                </ItemsPanelTemplate>
+            </Menu.ItemsPanel>
+            <MenuItem Header="File" HorizontalAlignment="Left">
+                <MenuItem x:Name="OpenFileMenuOption" Header="Open file..." Click="OpenFileMenuOption_Click"/>
+                <MenuItem x:Name="ImportFileMenuOption" Header="Import/Merge with file..." Click="ImportFileMenuOption_Click"/>
+                <MenuItem x:Name="SaveAsMenuOption" Header="Save as..." Click="SaveAsMenuOption_Click"/>
+                <Separator/>
+            </MenuItem>
+        </Menu>
     </Grid>
 </Window>

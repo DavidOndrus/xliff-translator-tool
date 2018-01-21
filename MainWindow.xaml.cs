@@ -7,6 +7,24 @@ namespace XliffTranslatorTool
         public MainWindow()
         {
             InitializeComponent();
+
+            ImportFileMenuOption.IsEnabled = false;
+            SaveAsMenuOption.IsEnabled = false;
+        }
+
+        private void OpenFileMenuOption_Click(object sender, RoutedEventArgs e)
+        {
+
+        }
+
+        private void ImportFileMenuOption_Click(object sender, RoutedEventArgs e)
+        {
+
+        }
+
+        private void SaveAsMenuOption_Click(object sender, RoutedEventArgs e)
+        {
+
         }
     }
 }
