@@ -2,6 +2,11 @@
 {
     public static class Constants
     {
+        #region XLIFF CONSTANTS
+        public const string XLIFF_VERSION_V12 = "1.2";
+        public const string XLIFF_VERSION_V20 = "2.0";
+        #endregion
+
         #region FILE DIALOGS
         public const string FILE_DIALOG_DEFAULT_EXT = ".xlf";
         public const string FILE_DIALOG_FILTER = "XLIFF documents (*.xlf;*.xliff)|*.xlf;*.xliff";

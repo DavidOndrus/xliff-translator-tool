@@ -1,6 +1,7 @@
 ﻿using Microsoft.Win32;
 using System.IO;
 using System.Windows;
+using XliffTranslatorTool.Parser;
 
 namespace XliffTranslatorTool
 {
@@ -28,6 +29,7 @@ namespace XliffTranslatorTool
             if (result == true)
             {
                 XliffParser = new XliffParser(filePath);
+                MainDataGrid.ItemsSource = XliffParser.GetTranslationUnits();
             }
         }
 
