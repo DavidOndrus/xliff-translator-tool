@@ -7,6 +7,7 @@ namespace XliffTranslatorTool
     public partial class MainWindow : Window
     {
         private string OpenedFileName { get; set; }
+        private XliffParser XliffParser { get; set; }
 
         public MainWindow()
         {
@@ -26,7 +27,7 @@ namespace XliffTranslatorTool
 
             if (result == true)
             {
-                //send filepath to parser
+                XliffParser = new XliffParser(filePath);
             }
         }
 
