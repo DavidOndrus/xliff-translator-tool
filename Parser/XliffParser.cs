@@ -9,6 +9,7 @@ namespace XliffTranslatorTool.Parser
     {
         private XmlNamespaceManager XmlNamespaceManager { get; } 
         private XmlDocument XmlDocument { get; } = new XmlDocument();
+        private const string NAMESPACE_PREFIX = "ns";
         private enum XliffVersion
         {
             V12, V20, UNKNOWN
@@ -32,7 +33,7 @@ namespace XliffTranslatorTool.Parser
 
         public IList<TranslationUnit> GetTranslationUnits()
         {
-            XmlNamespaceManager.AddNamespace("ns", GetNamespace());
+            XmlNamespaceManager.AddNamespace(NAMESPACE_PREFIX, GetNamespace());
             switch (GetXliffVersion())
             {
                 case XliffVersion.V12:  return GetTranslationUnitsV12();
@@ -53,13 +54,15 @@ namespace XliffTranslatorTool.Parser
 
         private IList<TranslationUnit> GetTranslationUnitsV12()
         {
-            string xPath = $"//ns:{Constants.XML_NODE_TRANSLATION_UNIT_V12}";
+            string xPath = $"//{NAMESPACE_PREFIX}:{Constants.XML_NODE_TRANSLATION_UNIT_V12}";
             XmlNodeList translationUnitNodes = XmlDocument.DocumentElement.SelectNodes(xPath, XmlNamespaceManager);
             throw new NotImplementedException();
         }
 
         private IList<TranslationUnit> GetTranslationUnitsV20()
         {
+            string xPath = $"//{NAMESPACE_PREFIX}:{Constants.XML_NODE_TRANSLATION_UNIT_V20}";
+            XmlNodeList translationUnitNodes = XmlDocument.DocumentElement.SelectNodes(xPath, XmlNamespaceManager);
             throw new NotImplementedException();
         }
     }
