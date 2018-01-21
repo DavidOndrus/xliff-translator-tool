@@ -5,6 +5,9 @@
         #region XLIFF CONSTANTS
         public const string XLIFF_VERSION_V12 = "1.2";
         public const string XLIFF_VERSION_V20 = "2.0";
+
+        public const string XLIFF_NAMESPACE_V12 = "urn:oasis:names:tc:xliff:document:1.2";
+        public const string XLIFF_NAMESPACE_V20 = "urn:oasis:names:tc:xliff:document:2.0";
         #endregion
 
         #region FILE DIALOGS
