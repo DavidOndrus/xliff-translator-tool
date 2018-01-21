@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         mc:Ignorable="d"
         Title="Xliff Translator Tool" Height="350" Width="525">
-    <Grid>
+    <StackPanel Orientation="Vertical">
         <Menu x:Name="FileMenuItem" Height="25" VerticalAlignment="Top" VerticalContentAlignment="Center">
             <Menu.ItemsPanel>
                 <ItemsPanelTemplate>
@@ -19,5 +19,6 @@
                 <Separator/>
             </MenuItem>
         </Menu>
-    </Grid>
+        <DataGrid VerticalAlignment="Top"/>
+    </StackPanel>
 </Window>
