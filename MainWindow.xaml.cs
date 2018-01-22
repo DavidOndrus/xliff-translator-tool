@@ -1,4 +1,6 @@
 ﻿using Microsoft.Win32;
+using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Windows;
 using XliffTranslatorTool.Parser;
@@ -16,6 +18,7 @@ namespace XliffTranslatorTool
 
             ImportFileMenuOption.IsEnabled = false;
             SaveAsMenuOption.IsEnabled = false;
+            MainDataGrid.Visibility = Visibility.Hidden;
         }
 
         private void OpenFileMenuOption_Click(object sender, RoutedEventArgs e)
@@ -29,7 +32,20 @@ namespace XliffTranslatorTool
             if (result == true)
             {
                 XliffParser = new XliffParser(filePath);
-                MainDataGrid.ItemsSource = XliffParser.GetTranslationUnits();
+                IList<TranslationUnit> translationUnits = XliffParser.GetTranslationUnits();
+                if (translationUnits == null)
+                {
+                    MessageBox.Show($"XLIFF version was not recognized. Supported versions are: {String.Join(", ", Constants.XLIFF_VERSION_V12, Constants.XLIFF_VERSION_V20)}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                }
+                else if (translationUnits.Count == 0)
+                {
+                    MessageBox.Show("0 translations loaded.", "Info", MessageBoxButton.OK, MessageBoxImage.Information);
+                }
+                else
+                {
+                    MainDataGrid.ItemsSource = translationUnits;
+                    MainDataGrid.Visibility = Visibility.Visible;
+                }
             }
         }
 

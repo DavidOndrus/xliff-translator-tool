@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Windows;
+﻿using System.Collections.Generic;
 using System.Xml;
 
 namespace XliffTranslatorTool.Parser
@@ -39,11 +37,7 @@ namespace XliffTranslatorTool.Parser
                 case XliffVersion.V12:  return GetTranslationUnitsV12();
                 case XliffVersion.V20:  return GetTranslationUnitsV20();
                 case XliffVersion.UNKNOWN:
-                default:
-                    {
-                        MessageBox.Show($"XLIFF version was not recognized. Supported versions are: {String.Join(", ", Constants.XLIFF_VERSION_V12, Constants.XLIFF_VERSION_V20)}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
-                        return null;
-                    }
+                default: return null;
             }
         }
 
