@@ -109,10 +109,53 @@ namespace XliffTranslatorTool.Parser
             IList<TranslationUnit> translationUnits = new List<TranslationUnit>();
             for (int translationUnitNodeIndex = 0; translationUnitNodeIndex < translationUnitNodes.Count; translationUnitNodeIndex++)
             {
+                XmlNode translationUnitNode = translationUnitNodes.Item(translationUnitNodeIndex);
+                string meaning = string.Empty;
+                string description = string.Empty;
+                string identifier = translationUnitNode.Attributes.GetNamedItem(Constants.XML_ATTRIBUTE_IDENTIFIER)?.Value ?? string.Empty;
 
+                XmlNode segmentNode = translationUnitNode.SelectSingleNode($"{NAMESPACE_PREFIX}:{Constants.XML_NODE_SEGMENT_V20}");
+                string source = segmentNode?.SelectSingleNode($"{NAMESPACE_PREFIX}:{Constants.XML_NODE_SOURCE}")?.InnerText ?? string.Empty;
+                string target = segmentNode?.SelectSingleNode($"{NAMESPACE_PREFIX}:{Constants.XML_NODE_TARGET}")?.InnerText ?? string.Empty;
+
+                XmlNode notesNode = translationUnitNode.SelectSingleNode($"{NAMESPACE_PREFIX}:{Constants.XML_NODE_NOTES_V20}");
+                if (notesNode != null)
+                {
+                    XmlNodeList noteNodes = notesNode.SelectNodes($"{NAMESPACE_PREFIX}:{Constants.XML_NODE_NOTE}");
+                    for (int noteNodeIndex = 0; noteNodeIndex < noteNodes.Count; noteNodeIndex++)
+                    {
+                        XmlNode noteNode = noteNodes.Item(noteNodeIndex);
+                        string category = noteNode.Attributes.GetNamedItem(Constants.XML_ATTRIBUTE_EXTRA_DATA_V20)?.Value ?? string.Empty;
+                        string value = noteNode.Attributes.GetNamedItem(Constants.XML_ATTRIBUTE_EXTRA_DATA_V20)?.InnerText ?? string.Empty;
+
+                        switch (category)
+                        {
+                            case Constants.XML_ATTRIBUTE_VALUE_DESCRIPTION:
+                                {
+                                    description = value;
+                                    break;
+                                }
+                            case Constants.XML_ATTRIBUTE_VALUE_MEANING:
+                                {
+                                    meaning = value;
+                                    break;
+                                }
+                            default: continue;
+                        }
+                    }
+                }
+
+                translationUnits.Add(new TranslationUnit()
+                {
+                    Identifier = identifier,
+                    Source = source,
+                    Target = target,
+                    Meaning = meaning,
+                    Description = description
+                });
             }
 
-            throw new NotImplementedException();
+            return translationUnits;
         }
     }
 }
