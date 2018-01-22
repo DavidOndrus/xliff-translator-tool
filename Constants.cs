@@ -33,6 +33,9 @@
         public const string XML_ATTRIBUTE_IDENTIFIER = "id";
         public const string XML_ATTRIBUTE_EXTRA_DATA_V12 = "from";
         public const string XML_ATTRIBUTE_EXTRA_DATA_V20 = "category";
+
+        public const string XML_ATTRIBUTE_VALUE_DESCRIPTION = "description";
+        public const string XML_ATTRIBUTE_VALUE_MEANING = "meaning";
         #endregion
     }
 }

@@ -54,15 +54,64 @@ namespace XliffTranslatorTool.Parser
 
         private IList<TranslationUnit> GetTranslationUnitsV12()
         {
-            string xPath = $"//{NAMESPACE_PREFIX}:{Constants.XML_NODE_TRANSLATION_UNIT_V12}";
-            XmlNodeList translationUnitNodes = XmlDocument.DocumentElement.SelectNodes(xPath, XmlNamespaceManager);
-            throw new NotImplementedException();
+            XmlNodeList translationUnitNodes = XmlDocument.DocumentElement.SelectNodes($"//{NAMESPACE_PREFIX}:{Constants.XML_NODE_TRANSLATION_UNIT_V12}", XmlNamespaceManager);
+
+            IList<TranslationUnit> translationUnits = new List<TranslationUnit>();
+            for (int translationUnitNodeIndex = 0; translationUnitNodeIndex < translationUnitNodes.Count; translationUnitNodeIndex++)
+            {
+                XmlNode translationUnitNode = translationUnitNodes.Item(translationUnitNodeIndex);
+                string meaning = string.Empty;
+                string description = string.Empty;
+                string identifier = translationUnitNode.Attributes.GetNamedItem(Constants.XML_ATTRIBUTE_IDENTIFIER)?.Value ?? string.Empty;
+                string source = translationUnitNode.SelectSingleNode($"{NAMESPACE_PREFIX}:{Constants.XML_NODE_SOURCE}", XmlNamespaceManager)?.InnerText ?? string.Empty;
+                string target = translationUnitNode.SelectSingleNode($"{NAMESPACE_PREFIX}:{Constants.XML_NODE_TARGET}", XmlNamespaceManager)?.InnerText ?? string.Empty;
+
+                XmlNodeList noteNodes = translationUnitNode.SelectNodes($"{NAMESPACE_PREFIX}:{Constants.XML_NODE_NOTE}", XmlNamespaceManager);
+                for (int noteNodeIndex = 0; noteNodeIndex < noteNodes.Count; noteNodeIndex++)
+                {
+                    XmlNode noteNode = noteNodes.Item(noteNodeIndex);
+                    string from = noteNode.Attributes.GetNamedItem(Constants.XML_ATTRIBUTE_EXTRA_DATA_V12)?.Value ?? string.Empty;
+                    string value = noteNode.Attributes.GetNamedItem(Constants.XML_ATTRIBUTE_EXTRA_DATA_V12)?.InnerText ?? string.Empty;
+
+                    switch (from)
+                    {
+                        case Constants.XML_ATTRIBUTE_VALUE_DESCRIPTION:
+                            {
+                                description = value;
+                                break;
+                            }
+                        case Constants.XML_ATTRIBUTE_VALUE_MEANING:
+                            {
+                                meaning = value;
+                                break;
+                            }
+                        default: continue;
+                    }
+                }
+
+                translationUnits.Add(new TranslationUnit()
+                {
+                    Identifier = identifier,
+                    Source = source,
+                    Target = target,
+                    Meaning = meaning,
+                    Description = description
+                });
+            }
+
+            return translationUnits;
         }
 
         private IList<TranslationUnit> GetTranslationUnitsV20()
         {
-            string xPath = $"//{NAMESPACE_PREFIX}:{Constants.XML_NODE_TRANSLATION_UNIT_V20}";
-            XmlNodeList translationUnitNodes = XmlDocument.DocumentElement.SelectNodes(xPath, XmlNamespaceManager);
+            XmlNodeList translationUnitNodes = XmlDocument.DocumentElement.SelectNodes($"//{NAMESPACE_PREFIX}:{Constants.XML_NODE_TRANSLATION_UNIT_V20}", XmlNamespaceManager);
+
+            IList<TranslationUnit> translationUnits = new List<TranslationUnit>();
+            for (int translationUnitNodeIndex = 0; translationUnitNodeIndex < translationUnitNodes.Count; translationUnitNodeIndex++)
+            {
+
+            }
+
             throw new NotImplementedException();
         }
     }
