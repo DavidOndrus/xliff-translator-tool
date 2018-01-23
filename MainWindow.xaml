@@ -18,7 +18,6 @@
                 <MenuItem x:Name="OpenFileMenuOption" Header="Open file..." Click="OpenFileMenuOption_Click"/>
                 <MenuItem x:Name="ImportFileMenuOption" Header="Import/Merge with file..." Click="ImportFileMenuOption_Click"/>
                 <MenuItem x:Name="SaveAsMenuOption" Header="Save as..." Click="SaveAsMenuOption_Click"/>
-                <Separator/>
             </MenuItem>
         </Menu>
         <DataGrid x:Name="MainDataGrid" VerticalAlignment="Top" FrozenColumnCount="1"/>
