@@ -95,6 +95,15 @@ namespace XliffTranslatorTool
 
         private void OpenFileMenuOption_Click(object sender, RoutedEventArgs e)
         {
+            if (CurrentState == State.FileOpened)
+            {
+                MessageBoxResult messageBoxResult = MessageBox.Show("Opening a new file will overwrite your current data and your changes will be lost.\nContinue ?", "Warning", MessageBoxButton.YesNo, MessageBoxImage.Warning);
+                if (messageBoxResult == MessageBoxResult.No)
+                {
+                    return;
+                }
+            }
+
             OpenFile();
         }
 
