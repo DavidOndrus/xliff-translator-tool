@@ -21,6 +21,6 @@
                 <Separator/>
             </MenuItem>
         </Menu>
-        <DataGrid x:Name="MainDataGrid" VerticalAlignment="Top"/>
+        <DataGrid x:Name="MainDataGrid" VerticalAlignment="Top" FrozenColumnCount="1"/>
     </StackPanel>
 </Window>
