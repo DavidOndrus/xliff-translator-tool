@@ -10,7 +10,7 @@ namespace XliffTranslatorTool
 {
     public partial class MainWindow : Window
     {
-        private new enum WindowState
+        private enum State
         {
             Loaded,
             FileOpened
@@ -18,14 +18,14 @@ namespace XliffTranslatorTool
 
         private string OpenedFileName { get; set; }
         private XliffParser XliffParser { get; set; }
-        private WindowState _currentWindowState;
-        private WindowState CurrentWindowState
+        private State _currentState;
+        private State CurrentState
         {
-            get => _currentWindowState;
+            get => _currentState;
             set
             {
-                _currentWindowState = value;
-                OnWindowStateChanged();
+                _currentState = value;
+                OnStateChanged();
             }
         }
 
@@ -36,7 +36,7 @@ namespace XliffTranslatorTool
 
         private void Window_Loaded(object sender, RoutedEventArgs e)
         {
-            SetWindowState(WindowState.Loaded);
+            SetState(State.Loaded);
         }
 
         private void Window_Closing(object sender, CancelEventArgs e)
@@ -66,26 +66,31 @@ namespace XliffTranslatorTool
             }
         }
 
-        private void OnWindowStateChanged()
+        private void OnStateChanged()
         {
-            switch (CurrentWindowState)
+            switch (CurrentState)
             {
-                case WindowState.Loaded:
+                case State.Loaded:
                     {
                         ImportFileMenuOption.IsEnabled = false;
                         SaveAsMenuOption.IsEnabled = false;
                         MainDataGrid.Visibility = Visibility.Hidden;
                         break;
                     }
-                case WindowState.FileOpened:
+                case State.FileOpened:
                     {
                         ImportFileMenuOption.IsEnabled = true;
                         SaveAsMenuOption.IsEnabled = true;
                         MainDataGrid.Visibility = Visibility.Visible;
                         break;
                     }
-                default: throw new NotImplementedException($"WindowState '{CurrentWindowState.ToString()}' not implemented");
+                default: throw new NotImplementedException($"WindowState '{CurrentState.ToString()}' not implemented");
             }
+        }
+
+        private void SetState(State state)
+        {
+            CurrentState = state;
         }
 
         private void OpenFileMenuOption_Click(object sender, RoutedEventArgs e)
@@ -116,14 +121,9 @@ namespace XliffTranslatorTool
                 else
                 {
                     MainDataGrid.ItemsSource = translationUnits;
-                    SetWindowState(WindowState.FileOpened);
+                    SetState(State.FileOpened);
                 }
             }
-        }
-
-        private void SetWindowState(WindowState windowState)
-        {
-            CurrentWindowState = windowState;
         }
 
         private void ImportFileMenuOption_Click(object sender, RoutedEventArgs e)
