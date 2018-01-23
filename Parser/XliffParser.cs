@@ -276,7 +276,84 @@ namespace XliffTranslatorTool.Parser
 
         private XmlDocument CreateXliffDocumentV20(XmlDocument xmlDocument, IEnumerable translationUnits)
         {
-            throw new NotImplementedException();
+            XmlNode rootNode = xmlDocument.CreateElement(Constants.XML_NODE_ROOT);
+
+            XmlAttribute versionAttribute = xmlDocument.CreateAttribute(Constants.XML_ATTRIBUTE_VERSION);
+            versionAttribute.Value = Constants.XLIFF_VERSION_V20;
+            rootNode.Attributes.Append(versionAttribute);
+
+            XmlAttribute namespaceAttribute = xmlDocument.CreateAttribute(Constants.XML_ATTRIBUTE_NAMESPACE);
+            namespaceAttribute.Value = Constants.XLIFF_NAMESPACE_V20;
+            rootNode.Attributes.Append(namespaceAttribute);
+
+            if (!String.IsNullOrEmpty(SourceLanguage))
+            {
+                XmlAttribute sourceLanguageAttribute = xmlDocument.CreateAttribute(Constants.XML_ATTRIBUTE_SOURCE_LANGUAGE_V20);
+                sourceLanguageAttribute.Value = SourceLanguage;
+                rootNode.Attributes.Append(sourceLanguageAttribute);
+            }
+
+            XmlNode fileNode = xmlDocument.CreateElement(Constants.XML_NODE_FILE);
+
+            foreach (TranslationUnit translationUnit in translationUnits)
+            {
+                if (String.IsNullOrEmpty(translationUnit.Identifier)) continue;
+
+                XmlNode translationUnitNode = xmlDocument.CreateElement(Constants.XML_NODE_TRANSLATION_UNIT_V20);
+
+                XmlAttribute identifierAttribute = xmlDocument.CreateAttribute(Constants.XML_ATTRIBUTE_IDENTIFIER);
+                identifierAttribute.Value = translationUnit.Identifier;
+                translationUnitNode.Attributes.Append(identifierAttribute);
+
+                XmlNode segmentNode = xmlDocument.CreateElement(Constants.XML_NODE_SEGMENT_V20);
+
+                XmlNode sourceNode = xmlDocument.CreateElement(Constants.XML_NODE_SOURCE);
+                sourceNode.InnerText = translationUnit.Source;
+                segmentNode.AppendChild(sourceNode);
+
+                XmlNode targetNode = xmlDocument.CreateElement(Constants.XML_NODE_TARGET);
+                targetNode.InnerText = translationUnit.Target;
+                segmentNode.AppendChild(targetNode);
+                translationUnitNode.AppendChild(segmentNode);
+
+                bool isDescriptionNullOrEmpty = String.IsNullOrEmpty(translationUnit.Description);
+                bool isMeaningNullOrEmpty = String.IsNullOrEmpty(translationUnit.Meaning);
+                if (!isDescriptionNullOrEmpty || !isMeaningNullOrEmpty)
+                {
+                    XmlNode notesNode = xmlDocument.CreateElement(Constants.XML_NODE_NOTES_V20);
+
+                    if (!isDescriptionNullOrEmpty)
+                    {
+                        XmlNode descriptionNode = xmlDocument.CreateElement(Constants.XML_NODE_NOTE);
+
+                        XmlAttribute categoryAttribute = xmlDocument.CreateAttribute(Constants.XML_ATTRIBUTE_EXTRA_DATA_V20);
+                        categoryAttribute.Value = Constants.XML_ATTRIBUTE_VALUE_DESCRIPTION;
+                        descriptionNode.Attributes.Append(categoryAttribute);
+                        descriptionNode.InnerText = translationUnit.Description;
+                        notesNode.AppendChild(descriptionNode);
+                    }
+
+                    if (!isMeaningNullOrEmpty)
+                    {
+                        XmlNode meaningNode = xmlDocument.CreateElement(Constants.XML_NODE_NOTE);
+
+                        XmlAttribute categoryAttribute = xmlDocument.CreateAttribute(Constants.XML_ATTRIBUTE_EXTRA_DATA_V20);
+                        categoryAttribute.Value = Constants.XML_ATTRIBUTE_VALUE_MEANING;
+                        meaningNode.Attributes.Append(categoryAttribute);
+                        meaningNode.InnerText = translationUnit.Meaning;
+                        notesNode.AppendChild(meaningNode);
+                    }
+
+                    translationUnitNode.AppendChild(notesNode);
+                }
+                
+                fileNode.AppendChild(translationUnitNode);
+            }
+
+            rootNode.AppendChild(fileNode);
+            xmlDocument.AppendChild(rootNode);
+
+            return xmlDocument;
         }
 
         private XmlNode CreateXliffOfTranslationUnitV12(TranslationUnit translationUnit)
