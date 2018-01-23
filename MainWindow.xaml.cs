@@ -142,6 +142,7 @@ namespace XliffTranslatorTool
         private static void ImportFile()
         {
             OpenFileDialog openFileDialog = CreateOpenFileDialog();
+            openFileDialog.Title = "Import file...";
             bool? result = openFileDialog.ShowDialog();
 
             string filePath = openFileDialog.FileName;
