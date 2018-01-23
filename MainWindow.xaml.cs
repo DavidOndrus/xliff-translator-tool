@@ -1,6 +1,7 @@
 ﻿using Microsoft.Win32;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.IO;
 using System.Windows;
 using XliffTranslatorTool.Parser;
@@ -15,13 +16,53 @@ namespace XliffTranslatorTool
         public MainWindow()
         {
             InitializeComponent();
+        }
 
+        private void Window_Loaded(object sender, RoutedEventArgs e)
+        {
+            InitializeWindow();
+        }
+
+        private void Window_Closing(object sender, CancelEventArgs e)
+        {
+            if (MainDataGrid.HasItems)
+            {
+                MessageBoxResult messageBoxResult = MessageBox.Show("Save as new file ?", "Question", MessageBoxButton.YesNoCancel, MessageBoxImage.Question);
+                switch (messageBoxResult)
+                {
+                    case MessageBoxResult.None:
+                    case MessageBoxResult.Cancel:
+                        {
+                            e.Cancel = true;
+                            break;
+                        }
+                    case MessageBoxResult.Yes:
+                        {
+                            SaveAs();
+                            break;
+                        }
+                    case MessageBoxResult.No:
+                        {
+                            e.Cancel = false;
+                            break;
+                        }
+                }
+            }
+        }
+
+        private void InitializeWindow()
+        {
             ImportFileMenuOption.IsEnabled = false;
             SaveAsMenuOption.IsEnabled = false;
             MainDataGrid.Visibility = Visibility.Hidden;
         }
 
         private void OpenFileMenuOption_Click(object sender, RoutedEventArgs e)
+        {
+            OpenFile();
+        }
+
+        private void OpenFile()
         {
             OpenFileDialog openFileDialog = CreateOpenFileDialog();
             bool? result = openFileDialog.ShowDialog();
@@ -39,7 +80,7 @@ namespace XliffTranslatorTool
                 }
                 else if (translationUnits.Count == 0)
                 {
-                    MessageBox.Show("0 translations loaded.", "Info", MessageBoxButton.OK, MessageBoxImage.Information);
+                    MessageBox.Show("0 translations loaded", "Info", MessageBoxButton.OK, MessageBoxImage.Information);
                 }
                 else
                 {
@@ -50,6 +91,11 @@ namespace XliffTranslatorTool
         }
 
         private void ImportFileMenuOption_Click(object sender, RoutedEventArgs e)
+        {
+            ImportFile();
+        }
+
+        private static void ImportFile()
         {
             OpenFileDialog openFileDialog = CreateOpenFileDialog();
             bool? result = openFileDialog.ShowDialog();
@@ -64,12 +110,16 @@ namespace XliffTranslatorTool
 
         private void SaveAsMenuOption_Click(object sender, RoutedEventArgs e)
         {
+            SaveAs();
+        }
+
+        private void SaveAs()
+        {
             SaveFileDialog saveFileDialog = new SaveFileDialog
             {
                 FileName = OpenedFileName,
                 DefaultExt = Constants.FILE_DIALOG_DEFAULT_EXT,
                 Filter = Constants.FILE_DIALOG_FILTER,
-                CheckFileExists = true,
                 CheckPathExists = true,
                 OverwritePrompt = true,
                 AddExtension = true

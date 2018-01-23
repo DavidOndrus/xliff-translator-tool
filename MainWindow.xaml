@@ -4,7 +4,9 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         mc:Ignorable="d"
-        Title="XLIFF Translator Tool" Height="350" Width="525">
+        Title="XLIFF Translator Tool" Height="350" Width="525"
+        Loaded="Window_Loaded"
+        Closing="Window_Closing">
     <StackPanel Orientation="Vertical">
         <Menu x:Name="FileMenuItem" Height="25" VerticalAlignment="Top" VerticalContentAlignment="Center">
             <Menu.ItemsPanel>
