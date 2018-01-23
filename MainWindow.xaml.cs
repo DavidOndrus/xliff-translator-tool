@@ -17,7 +17,7 @@ namespace XliffTranslatorTool
         }
 
         private string OpenedFileName { get; set; }
-        private XliffParser XliffParser { get; set; }
+        private XliffParser XliffParser { get; set; } = new XliffParser();
         private State _currentState;
         private State CurrentState
         {
@@ -117,8 +117,7 @@ namespace XliffTranslatorTool
 
             if (result == true)
             {
-                XliffParser = new XliffParser(filePath);
-                IList<TranslationUnit> translationUnits = XliffParser.GetTranslationUnits();
+                IList<TranslationUnit> translationUnits = XliffParser.GetTranslationUnitsFromFile(filePath);
                 if (translationUnits == null)
                 {
                     MessageBox.Show($"XLIFF version was not recognized. Supported versions are: {String.Join(", ", Constants.XLIFF_VERSION_V12, Constants.XLIFF_VERSION_V20)}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);

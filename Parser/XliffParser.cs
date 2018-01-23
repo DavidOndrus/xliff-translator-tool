@@ -5,7 +5,7 @@ namespace XliffTranslatorTool.Parser
 {
     public class XliffParser
     {
-        private XmlNamespaceManager XmlNamespaceManager { get; } 
+        private XmlNamespaceManager XmlNamespaceManager { get; set; } 
         private XmlDocument XmlDocument { get; } = new XmlDocument();
         private const string NAMESPACE_PREFIX = "ns";
         private enum XliffVersion
@@ -13,11 +13,7 @@ namespace XliffTranslatorTool.Parser
             V12, V20, UNKNOWN
         }
 
-        public XliffParser(string filePath)
-        {
-            XmlDocument.Load(filePath);
-            XmlNamespaceManager = new XmlNamespaceManager(XmlDocument.NameTable);
-        }
+        public XliffParser() { }
 
         private XliffVersion GetXliffVersion()
         {
@@ -29,8 +25,10 @@ namespace XliffTranslatorTool.Parser
             }
         }
 
-        public IList<TranslationUnit> GetTranslationUnits()
+        public IList<TranslationUnit> GetTranslationUnitsFromFile(string filePath)
         {
+            XmlDocument.Load(filePath);
+            XmlNamespaceManager = new XmlNamespaceManager(XmlDocument.NameTable);
             XmlNamespaceManager.AddNamespace(NAMESPACE_PREFIX, GetNamespace());
             switch (GetXliffVersion())
             {
