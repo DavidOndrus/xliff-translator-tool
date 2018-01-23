@@ -10,7 +10,8 @@
 
         public override bool Equals(object obj)
         {
-            return ((obj as TranslationUnit).Identifier == this.Identifier);
+            TranslationUnit other = (obj as TranslationUnit);
+            return (other != null) && (other.Identifier == this.Identifier);
         }
 
         public override int GetHashCode()
