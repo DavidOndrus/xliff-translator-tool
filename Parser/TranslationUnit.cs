@@ -16,7 +16,7 @@
 
         public override int GetHashCode()
         {
-            return this.Identifier.GetHashCode();
+            return this.Identifier?.GetHashCode() ?? string.Empty.GetHashCode();
         }
     }
 }
