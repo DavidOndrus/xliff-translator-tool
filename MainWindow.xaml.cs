@@ -118,15 +118,7 @@ namespace XliffTranslatorTool
             if (result == true)
             {
                 IList<TranslationUnit> translationUnits = XliffParser.GetTranslationUnitsFromFile(filePath);
-                if (translationUnits == null)
-                {
-                    MessageBox.Show($"XLIFF version was not recognized. Supported versions are: {String.Join(", ", Constants.XLIFF_VERSION_V12, Constants.XLIFF_VERSION_V20)}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
-                }
-                else if (translationUnits.Count == 0)
-                {
-                    MessageBox.Show("0 translations loaded", "Info", MessageBoxButton.OK, MessageBoxImage.Information);
-                }
-                else
+                if (AreTranslationUnitsValid(translationUnits))
                 {
                     MainDataGrid.ItemsSource = translationUnits;
                     SetState(State.FileOpened);
@@ -139,7 +131,7 @@ namespace XliffTranslatorTool
             ImportFile();
         }
 
-        private static void ImportFile()
+        private void ImportFile()
         {
             OpenFileDialog openFileDialog = CreateOpenFileDialog();
             openFileDialog.Title = "Import";
@@ -149,8 +141,30 @@ namespace XliffTranslatorTool
 
             if (result == true)
             {
-                //send filepath to parser
+                IList<TranslationUnit> newTranslationUnits = XliffParser.GetTranslationUnitsFromFile(filePath);
+                if (AreTranslationUnitsValid(newTranslationUnits))
+                {
+                    
+                }
             }
+        }
+
+        private bool AreTranslationUnitsValid(IList<TranslationUnit> translationUnits)
+        {
+            if (translationUnits == null)
+            {
+                MessageBox.Show($"XLIFF version was not recognized. Supported versions are: {String.Join(", ", Constants.XLIFF_VERSION_V12, Constants.XLIFF_VERSION_V20)}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+            else if (translationUnits.Count == 0)
+            {
+                MessageBox.Show("0 translations loaded", "Info", MessageBoxButton.OK, MessageBoxImage.Information);
+            }
+            else
+            {
+                return true;
+            }
+
+            return false;
         }
 
         private void SaveAsMenuOption_Click(object sender, RoutedEventArgs e)
