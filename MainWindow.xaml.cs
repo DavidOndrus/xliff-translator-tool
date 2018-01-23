@@ -3,8 +3,8 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
-using System.IO;
 using System.Windows;
+using System.Xml;
 using XliffTranslatorTool.Parser;
 
 namespace XliffTranslatorTool
@@ -85,7 +85,8 @@ namespace XliffTranslatorTool
                         MainDataGrid.Visibility = Visibility.Visible;
                         break;
                     }
-                default: throw new NotImplementedException($"WindowState '{CurrentState.ToString()}' not implemented");
+                default:
+                    throw new NotImplementedException($"WindowState '{CurrentState.ToString()}' not implemented");
             }
         }
 
@@ -196,10 +197,27 @@ namespace XliffTranslatorTool
 
             if (result == true)
             {
-                using (StreamWriter sw = new StreamWriter(saveFileDialog.FileName))
+                XmlDocument xmlDocument = null;
+                MessageBoxResult messageBoxResult = MessageBox.Show("YES - XLIFF version 1.2 (default)\nNO - XLIFF version 2.0", "XLIFF version", MessageBoxButton.YesNo, MessageBoxImage.Question);
+                switch (messageBoxResult)
                 {
-                    //write xml to file
+                    case MessageBoxResult.Yes:
+                        {
+                            xmlDocument = XliffParser.CreateXliffDocument(XliffParser.XliffVersion.V12, MainDataGrid.ItemsSource);
+                            break;
+                        }
+                    case MessageBoxResult.No:
+                        {
+                            xmlDocument = XliffParser.CreateXliffDocument(XliffParser.XliffVersion.V20, MainDataGrid.ItemsSource);
+                            break;
+                        }
+                    case MessageBoxResult.None:
+                        return;
+                    default:
+                        throw new NotImplementedException($"Not implemented MessageBoxResult '{messageBoxResult.ToString()}'");
                 }
+
+                xmlDocument.Save(saveFileDialog.FileName);
             }
         }
 

@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections;
 using System.Collections.ObjectModel;
 using System.Xml;
 
@@ -6,12 +7,16 @@ namespace XliffTranslatorTool.Parser
 {
     public class XliffParser
     {
+        private const string NAMESPACE_PREFIX = "ns";
+
         private XmlNamespaceManager XmlNamespaceManager { get; set; } 
         private XmlDocument XmlDocument { get; } = new XmlDocument();
-        private const string NAMESPACE_PREFIX = "ns";
-        private enum XliffVersion
+        private string SourceLanguage { get; set; }
+        public enum XliffVersion
         {
-            V12, V20, UNKNOWN
+            V12,
+            V20,
+            UNKNOWN
         }
 
         public XliffParser() { }
@@ -20,9 +25,12 @@ namespace XliffTranslatorTool.Parser
         {
             switch (XmlDocument.DocumentElement.GetAttribute(Constants.XML_ATTRIBUTE_VERSION))
             {
-                case Constants.XLIFF_VERSION_V12:   return XliffVersion.V12;
-                case Constants.XLIFF_VERSION_V20:   return XliffVersion.V20;
-                default:                            return XliffVersion.UNKNOWN;
+                case Constants.XLIFF_VERSION_V12:
+                    return XliffVersion.V12;
+                case Constants.XLIFF_VERSION_V20:
+                    return XliffVersion.V20;
+                default:
+                    return XliffVersion.UNKNOWN;
             }
         }
 
@@ -31,18 +39,41 @@ namespace XliffTranslatorTool.Parser
             XmlDocument.Load(filePath);
             XmlNamespaceManager = new XmlNamespaceManager(XmlDocument.NameTable);
             XmlNamespaceManager.AddNamespace(NAMESPACE_PREFIX, GetNamespace());
-            switch (GetXliffVersion())
+            XliffVersion xliffVersion = GetXliffVersion();
+            SaveSourceLanguage(xliffVersion);
+            switch (xliffVersion)
             {
-                case XliffVersion.V12:  return GetTranslationUnitsV12();
-                case XliffVersion.V20:  return GetTranslationUnitsV20();
-                case XliffVersion.UNKNOWN:
-                default: return null;
+                case XliffVersion.V12:
+                    return GetTranslationUnitsV12();
+                case XliffVersion.V20:
+                    return GetTranslationUnitsV20();
+                default:
+                    return null;
             }
         }
 
         private string GetNamespace()
         {
             return XmlDocument.DocumentElement.NamespaceURI;
+        }
+
+        private void SaveSourceLanguage(XliffVersion xliffVersion)
+        {
+            switch (xliffVersion)
+            {
+                case XliffVersion.V12:
+                    {
+                        SourceLanguage = XmlDocument.DocumentElement.SelectSingleNode($"{NAMESPACE_PREFIX}:{Constants.XML_NODE_FILE}", XmlNamespaceManager)?.Attributes.GetNamedItem(Constants.XML_ATTRIBUTE_SOURCE_LANGUAGE_V12)?.Value ?? string.Empty;
+                        break;
+                    }
+                case XliffVersion.V20:
+                    {
+                        SourceLanguage = XmlDocument.DocumentElement?.Attributes.GetNamedItem(Constants.XML_ATTRIBUTE_SOURCE_LANGUAGE_V20)?.Value ?? string.Empty;
+                        break;
+                    }
+                default:
+                    throw new NotImplementedException("Not implemented XliffVersion");
+            }
         }
 
         private ObservableCollection<TranslationUnit> GetTranslationUnitsV12()
@@ -78,7 +109,8 @@ namespace XliffTranslatorTool.Parser
                                 meaning = value;
                                 break;
                             }
-                        default: continue;
+                        default:
+                            continue;
                     }
                 }
 
@@ -133,7 +165,8 @@ namespace XliffTranslatorTool.Parser
                                     meaning = value;
                                     break;
                                 }
-                            default: continue;
+                            default:
+                                continue;
                         }
                     }
                 }
@@ -149,6 +182,114 @@ namespace XliffTranslatorTool.Parser
             }
 
             return translationUnits;
+        }
+
+        public XmlDocument CreateXliffDocument(XliffVersion xliffVersion, IEnumerable translationUnitsCollection)
+        {
+            XmlDocument xmlDocument = new XmlDocument();
+            XmlNode docNode = xmlDocument.CreateXmlDeclaration("1.0", "UTF-8", null);
+            xmlDocument.AppendChild(docNode);
+
+            switch (xliffVersion)
+            {
+                case XliffVersion.V12:
+                    return CreateXliffDocumentV12(xmlDocument, translationUnitsCollection);
+                case XliffVersion.V20:
+                    return CreateXliffDocumentV20(xmlDocument, translationUnitsCollection);
+                default:
+                    throw new NotImplementedException("Not implemented XliffVersion");
+            }
+        }
+
+        private XmlDocument CreateXliffDocumentV12(XmlDocument xmlDocument, IEnumerable translationUnits)
+        {
+            XmlNode rootNode = xmlDocument.CreateElement(Constants.XML_NODE_ROOT);
+
+            XmlAttribute versionAttribute = xmlDocument.CreateAttribute(Constants.XML_ATTRIBUTE_VERSION);
+            versionAttribute.Value = Constants.XLIFF_VERSION_V12;
+            rootNode.Attributes.Append(versionAttribute);
+
+            XmlAttribute namespaceAttribute = xmlDocument.CreateAttribute(Constants.XML_ATTRIBUTE_NAMESPACE);
+            namespaceAttribute.Value = Constants.XLIFF_NAMESPACE_V12;
+            rootNode.Attributes.Append(namespaceAttribute);
+
+            XmlNode fileNode = xmlDocument.CreateElement(Constants.XML_NODE_FILE);
+
+            if (!String.IsNullOrEmpty(SourceLanguage))
+            {
+                XmlAttribute sourceLanguageAttribute = xmlDocument.CreateAttribute(Constants.XML_ATTRIBUTE_SOURCE_LANGUAGE_V12);
+                sourceLanguageAttribute.Value = SourceLanguage;
+                fileNode.Attributes.Append(sourceLanguageAttribute);
+            }
+
+            XmlNode bodyNode = xmlDocument.CreateElement(Constants.XML_NODE_BODY_V12);
+
+            foreach (TranslationUnit translationUnit in translationUnits)
+            {
+                if (String.IsNullOrEmpty(translationUnit.Identifier)) continue;
+
+                XmlNode translationUnitNode = xmlDocument.CreateElement(Constants.XML_NODE_TRANSLATION_UNIT_V12);
+
+                XmlAttribute identifierAttribute = xmlDocument.CreateAttribute(Constants.XML_ATTRIBUTE_IDENTIFIER);
+                identifierAttribute.Value = translationUnit.Identifier;
+                translationUnitNode.Attributes.Append(identifierAttribute);
+
+                XmlNode sourceNode = xmlDocument.CreateElement(Constants.XML_NODE_SOURCE);
+                sourceNode.InnerText = translationUnit.Source;
+                translationUnitNode.AppendChild(sourceNode);
+
+                XmlNode targetNode = xmlDocument.CreateElement(Constants.XML_NODE_TARGET);
+                targetNode.InnerText = translationUnit.Target;
+                translationUnitNode.AppendChild(targetNode);
+
+                if (!String.IsNullOrEmpty(translationUnit.Description))
+                {
+                    XmlNode descriptionNode = xmlDocument.CreateElement(Constants.XML_NODE_NOTE);
+
+                    XmlAttribute fromAttribute = xmlDocument.CreateAttribute(Constants.XML_ATTRIBUTE_EXTRA_DATA_V12);
+                    fromAttribute.Value = Constants.XML_ATTRIBUTE_VALUE_DESCRIPTION;
+                    descriptionNode.Attributes.Append(fromAttribute);
+                    descriptionNode.InnerText = translationUnit.Description;
+                    translationUnitNode.AppendChild(descriptionNode);
+                }
+
+                if (!String.IsNullOrEmpty(translationUnit.Meaning))
+                {
+                    XmlNode meaningNode = xmlDocument.CreateElement(Constants.XML_NODE_NOTE);
+
+                    XmlAttribute fromAttribute = xmlDocument.CreateAttribute(Constants.XML_ATTRIBUTE_EXTRA_DATA_V12);
+                    fromAttribute.Value = Constants.XML_ATTRIBUTE_VALUE_MEANING;
+                    meaningNode.Attributes.Append(fromAttribute);
+                    meaningNode.InnerText = translationUnit.Meaning;
+                    translationUnitNode.AppendChild(meaningNode);
+                }
+
+                bodyNode.AppendChild(translationUnitNode);
+            }
+
+            fileNode.AppendChild(bodyNode);
+            rootNode.AppendChild(fileNode);
+            xmlDocument.AppendChild(rootNode);
+
+            return xmlDocument;
+        }
+
+        private XmlDocument CreateXliffDocumentV20(XmlDocument xmlDocument, IEnumerable translationUnits)
+        {
+            throw new NotImplementedException();
+        }
+
+        private XmlNode CreateXliffOfTranslationUnitV12(TranslationUnit translationUnit)
+        {
+            XmlDocument xmlDocument = new XmlDocument();
+            XmlElement translationUnitNode = XmlDocument.CreateElement(Constants.XML_NODE_TRANSLATION_UNIT_V12);
+
+            throw new NotImplementedException();
+        }
+
+        private XmlNode CreateXliffOfTranslationUnitV20(TranslationUnit translationUnit)
+        {
+            throw new NotImplementedException();
         }
     }
 }

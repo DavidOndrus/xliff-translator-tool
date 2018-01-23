@@ -30,9 +30,12 @@
         public const string XML_NODE_CONTEXT_V12 = "context";
 
         public const string XML_ATTRIBUTE_VERSION = "version";
+        public const string XML_ATTRIBUTE_NAMESPACE = "xmlns";
         public const string XML_ATTRIBUTE_IDENTIFIER = "id";
         public const string XML_ATTRIBUTE_EXTRA_DATA_V12 = "from";
         public const string XML_ATTRIBUTE_EXTRA_DATA_V20 = "category";
+        public const string XML_ATTRIBUTE_SOURCE_LANGUAGE_V12 = "source-language";
+        public const string XML_ATTRIBUTE_SOURCE_LANGUAGE_V20 = "srcLang";
 
         public const string XML_ATTRIBUTE_VALUE_DESCRIPTION = "description";
         public const string XML_ATTRIBUTE_VALUE_MEANING = "meaning";
