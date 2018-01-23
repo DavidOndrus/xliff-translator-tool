@@ -145,7 +145,14 @@ namespace XliffTranslatorTool
                 ObservableCollection<TranslationUnit> newTranslationUnits = XliffParser.GetTranslationUnitsFromFile(filePath);
                 if (AreTranslationUnitsValid(newTranslationUnits))
                 {
-                    
+                    ObservableCollection<TranslationUnit> list = (ObservableCollection<TranslationUnit>)MainDataGrid.ItemsSource;
+                    foreach (TranslationUnit translationUnit in newTranslationUnits)
+                    {
+                        if (!list.Contains(translationUnit))
+                        {
+                            list.Add(translationUnit);
+                        }
+                    }
                 }
             }
         }
@@ -158,7 +165,7 @@ namespace XliffTranslatorTool
             }
             else if (translationUnits.Count == 0)
             {
-                MessageBox.Show("0 translations loaded", "Info", MessageBoxButton.OK, MessageBoxImage.Information);
+                MessageBox.Show("0 translations found", "Info", MessageBoxButton.OK, MessageBoxImage.Information);
             }
             else
             {
