@@ -218,6 +218,7 @@ namespace XliffTranslatorTool
                 }
 
                 xmlDocument.Save(saveFileDialog.FileName);
+                MessageBox.Show("Saved", "Info", MessageBoxButton.OK, MessageBoxImage.Information);
             }
         }
 
