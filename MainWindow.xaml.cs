@@ -10,8 +10,24 @@ namespace XliffTranslatorTool
 {
     public partial class MainWindow : Window
     {
+        private new enum WindowState
+        {
+            Loaded,
+            FileOpened
+        }
+
         private string OpenedFileName { get; set; }
         private XliffParser XliffParser { get; set; }
+        private WindowState _currentWindowState;
+        private WindowState CurrentWindowState
+        {
+            get => _currentWindowState;
+            set
+            {
+                _currentWindowState = value;
+                OnWindowStateChanged();
+            }
+        }
 
         public MainWindow()
         {
@@ -20,7 +36,7 @@ namespace XliffTranslatorTool
 
         private void Window_Loaded(object sender, RoutedEventArgs e)
         {
-            InitializeWindow();
+            SetWindowState(WindowState.Loaded);
         }
 
         private void Window_Closing(object sender, CancelEventArgs e)
@@ -50,11 +66,26 @@ namespace XliffTranslatorTool
             }
         }
 
-        private void InitializeWindow()
+        private void OnWindowStateChanged()
         {
-            ImportFileMenuOption.IsEnabled = false;
-            SaveAsMenuOption.IsEnabled = false;
-            MainDataGrid.Visibility = Visibility.Hidden;
+            switch (CurrentWindowState)
+            {
+                case WindowState.Loaded:
+                    {
+                        ImportFileMenuOption.IsEnabled = false;
+                        SaveAsMenuOption.IsEnabled = false;
+                        MainDataGrid.Visibility = Visibility.Hidden;
+                        break;
+                    }
+                case WindowState.FileOpened:
+                    {
+                        ImportFileMenuOption.IsEnabled = true;
+                        SaveAsMenuOption.IsEnabled = true;
+                        MainDataGrid.Visibility = Visibility.Visible;
+                        break;
+                    }
+                default: throw new NotImplementedException($"WindowState '{CurrentWindowState.ToString()}' not implemented");
+            }
         }
 
         private void OpenFileMenuOption_Click(object sender, RoutedEventArgs e)
@@ -85,9 +116,14 @@ namespace XliffTranslatorTool
                 else
                 {
                     MainDataGrid.ItemsSource = translationUnits;
-                    MainDataGrid.Visibility = Visibility.Visible;
+                    SetWindowState(WindowState.FileOpened);
                 }
             }
+        }
+
+        private void SetWindowState(WindowState windowState)
+        {
+            CurrentWindowState = windowState;
         }
 
         private void ImportFileMenuOption_Click(object sender, RoutedEventArgs e)
