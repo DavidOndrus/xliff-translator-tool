@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Xml;
 
 namespace XliffTranslatorTool.Parser
@@ -25,7 +26,7 @@ namespace XliffTranslatorTool.Parser
             }
         }
 
-        public IList<TranslationUnit> GetTranslationUnitsFromFile(string filePath)
+        public ObservableCollection<TranslationUnit> GetTranslationUnitsFromFile(string filePath)
         {
             XmlDocument.Load(filePath);
             XmlNamespaceManager = new XmlNamespaceManager(XmlDocument.NameTable);
@@ -44,11 +45,11 @@ namespace XliffTranslatorTool.Parser
             return XmlDocument.DocumentElement.NamespaceURI;
         }
 
-        private IList<TranslationUnit> GetTranslationUnitsV12()
+        private ObservableCollection<TranslationUnit> GetTranslationUnitsV12()
         {
             XmlNodeList translationUnitNodes = XmlDocument.DocumentElement.SelectNodes($"//{NAMESPACE_PREFIX}:{Constants.XML_NODE_TRANSLATION_UNIT_V12}", XmlNamespaceManager);
 
-            IList<TranslationUnit> translationUnits = new List<TranslationUnit>();
+            ObservableCollection<TranslationUnit> translationUnits = new ObservableCollection<TranslationUnit>();
             for (int translationUnitNodeIndex = 0; translationUnitNodeIndex < translationUnitNodes.Count; translationUnitNodeIndex++)
             {
                 XmlNode translationUnitNode = translationUnitNodes.Item(translationUnitNodeIndex);
@@ -94,11 +95,11 @@ namespace XliffTranslatorTool.Parser
             return translationUnits;
         }
 
-        private IList<TranslationUnit> GetTranslationUnitsV20()
+        private ObservableCollection<TranslationUnit> GetTranslationUnitsV20()
         {
             XmlNodeList translationUnitNodes = XmlDocument.DocumentElement.SelectNodes($"//{NAMESPACE_PREFIX}:{Constants.XML_NODE_TRANSLATION_UNIT_V20}", XmlNamespaceManager);
 
-            IList<TranslationUnit> translationUnits = new List<TranslationUnit>();
+            ObservableCollection<TranslationUnit> translationUnits = new ObservableCollection<TranslationUnit>();
             for (int translationUnitNodeIndex = 0; translationUnitNodeIndex < translationUnitNodes.Count; translationUnitNodeIndex++)
             {
                 XmlNode translationUnitNode = translationUnitNodes.Item(translationUnitNodeIndex);

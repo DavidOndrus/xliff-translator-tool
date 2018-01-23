@@ -1,6 +1,7 @@
 ﻿using Microsoft.Win32;
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.IO;
 using System.Windows;
@@ -117,7 +118,7 @@ namespace XliffTranslatorTool
 
             if (result == true)
             {
-                IList<TranslationUnit> translationUnits = XliffParser.GetTranslationUnitsFromFile(filePath);
+                ObservableCollection<TranslationUnit> translationUnits = XliffParser.GetTranslationUnitsFromFile(filePath);
                 if (AreTranslationUnitsValid(translationUnits))
                 {
                     MainDataGrid.ItemsSource = translationUnits;
@@ -141,7 +142,7 @@ namespace XliffTranslatorTool
 
             if (result == true)
             {
-                IList<TranslationUnit> newTranslationUnits = XliffParser.GetTranslationUnitsFromFile(filePath);
+                ObservableCollection<TranslationUnit> newTranslationUnits = XliffParser.GetTranslationUnitsFromFile(filePath);
                 if (AreTranslationUnitsValid(newTranslationUnits))
                 {
                     
