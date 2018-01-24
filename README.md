@@ -9,6 +9,8 @@ EXAMPLE: Opening "strings.en.xlf" with 4 translation units and then importing "s
 
 WARNING: This tool also removes all unnecessary elements from XLIFF file such as "location" of translation in source code.
 
+DOWNLOAD: [Releases](https://github.com/DavidOndrus/xliff-translator-tool/releases)
+
 ## Images
 ![table image](Images/table.png)
 ![menu image](Images/menu.png)
