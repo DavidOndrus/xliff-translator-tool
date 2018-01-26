@@ -53,7 +53,15 @@ namespace XliffTranslatorTool.Parser
             //    MessageBox.Show("There were some invalid characters in the file.\nSince default XML parser doesn't work with invalid XML format file, these characters were replaced.\n& = &amp;", "Invalid file", MessageBoxButton.OK, MessageBoxImage.Information);
             //}
 
-            XmlDocument.LoadXml(text);
+            try
+            {
+                XmlDocument.LoadXml(text);
+            }
+            catch (XmlException ex)
+            {
+                MessageBox.Show("Error occured while reading file. Please, create new issue with this report on GitHub:\n\n" + ex.Message, "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+
             XmlNamespaceManager = new XmlNamespaceManager(XmlDocument.NameTable);
             XmlNamespaceManager.AddNamespace(NAMESPACE_PREFIX, GetNamespace());
             XliffVersion xliffVersion = GetXliffVersion();
