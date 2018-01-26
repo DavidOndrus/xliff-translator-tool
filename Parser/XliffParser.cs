@@ -95,7 +95,7 @@ namespace XliffTranslatorTool.Parser
                 {
                     XmlNode noteNode = noteNodes.Item(noteNodeIndex);
                     string from = noteNode.Attributes.GetNamedItem(Constants.XML_ATTRIBUTE_EXTRA_DATA_V12)?.Value ?? string.Empty;
-                    string value = noteNode.Attributes.GetNamedItem(Constants.XML_ATTRIBUTE_EXTRA_DATA_V12)?.InnerText ?? string.Empty;
+                    string value = noteNode.InnerText ?? string.Empty;
 
                     switch (from)
                     {
@@ -151,7 +151,7 @@ namespace XliffTranslatorTool.Parser
                     {
                         XmlNode noteNode = noteNodes.Item(noteNodeIndex);
                         string category = noteNode.Attributes.GetNamedItem(Constants.XML_ATTRIBUTE_EXTRA_DATA_V20)?.Value ?? string.Empty;
-                        string value = noteNode.Attributes.GetNamedItem(Constants.XML_ATTRIBUTE_EXTRA_DATA_V20)?.InnerText ?? string.Empty;
+                        string value = noteNode.InnerText ?? string.Empty;
 
                         switch (category)
                         {
