@@ -7,19 +7,29 @@
         Title="XLIFF Translator Tool" Height="350" Width="525"
         Loaded="Window_Loaded"
         Closing="Window_Closing">
-    <StackPanel Orientation="Vertical">
-        <Menu x:Name="FileMenuItem" Height="25" VerticalAlignment="Top" VerticalContentAlignment="Center">
-            <Menu.ItemsPanel>
-                <ItemsPanelTemplate>
-                    <Grid/>
-                </ItemsPanelTemplate>
-            </Menu.ItemsPanel>
-            <MenuItem Header="File" HorizontalAlignment="Left">
-                <MenuItem x:Name="OpenFileMenuOption" Header="Open file..." Click="OpenFileMenuOption_Click"/>
-                <MenuItem x:Name="ImportFileMenuOption" Header="Import/Merge with file..." Click="ImportFileMenuOption_Click"/>
-                <MenuItem x:Name="SaveAsMenuOption" Header="Save as..." Click="SaveAsMenuOption_Click"/>
-            </MenuItem>
-        </Menu>
-        <DataGrid x:Name="MainDataGrid" VerticalAlignment="Top" FrozenColumnCount="1"/>
-    </StackPanel>
+    <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+        <StackPanel Orientation="Vertical">
+            <Menu x:Name="FileMenuItem" Height="25" VerticalAlignment="Top" VerticalContentAlignment="Center">
+                <Menu.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <Grid/>
+                    </ItemsPanelTemplate>
+                </Menu.ItemsPanel>
+                <MenuItem Header="File" HorizontalAlignment="Left">
+                    <MenuItem x:Name="OpenFileMenuOption" Header="Open file..." Click="OpenFileMenuOption_Click"/>
+                    <MenuItem x:Name="ImportFileMenuOption" Header="Import/Merge with file..." Click="ImportFileMenuOption_Click"/>
+                    <MenuItem x:Name="SaveAsMenuOption" Header="Save as..." Click="SaveAsMenuOption_Click"/>
+                </MenuItem>
+            </Menu>
+            <DataGrid x:Name="MainDataGrid" VerticalAlignment="Top" FrozenColumnCount="1" AutoGenerateColumns="False">
+                <DataGrid.Columns>
+                    <DataGridTextColumn Binding="{Binding Identifier}" Header="Identifier"/>
+                    <DataGridTextColumn Binding="{Binding Meaning}" Header="Meaning"/>
+                    <DataGridTextColumn Binding="{Binding Description}" Header="Description"/>
+                    <DataGridTextColumn Binding="{Binding Source}" Header="Source"/>
+                    <DataGridTextColumn Binding="{Binding Target}" Header="Target" Width="*"/>
+                </DataGrid.Columns>
+            </DataGrid>
+        </StackPanel>
+    </ScrollViewer>
 </Window>
