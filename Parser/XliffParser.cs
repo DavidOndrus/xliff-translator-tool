@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.ObjectModel;
+using System.IO;
+using System.Windows;
 using System.Xml;
 
 namespace XliffTranslatorTool.Parser
@@ -36,7 +38,22 @@ namespace XliffTranslatorTool.Parser
 
         public ObservableCollection<TranslationUnit> GetTranslationUnitsFromFile(string filePath)
         {
-            XmlDocument.Load(filePath);
+            string text = string.Empty;
+            int originalTextSize = -1, escapedTextLength = -1;
+            using (StreamReader streamReader = new StreamReader(filePath))
+            {
+                text = streamReader.ReadToEnd();
+                originalTextSize = text.Length;
+            }
+            text = text.Replace("&", "&amp;");
+            escapedTextLength = text.Length;
+
+            //if (originalTextSize != escapedTextLength)
+            //{
+            //    MessageBox.Show("There were some invalid characters in the file.\nSince default XML parser doesn't work with invalid XML format file, these characters were replaced.\n& = &amp;", "Invalid file", MessageBoxButton.OK, MessageBoxImage.Information);
+            //}
+
+            XmlDocument.LoadXml(text);
             XmlNamespaceManager = new XmlNamespaceManager(XmlDocument.NameTable);
             XmlNamespaceManager.AddNamespace(NAMESPACE_PREFIX, GetNamespace());
             XliffVersion xliffVersion = GetXliffVersion();
@@ -354,19 +371,6 @@ namespace XliffTranslatorTool.Parser
             xmlDocument.AppendChild(rootNode);
 
             return xmlDocument;
-        }
-
-        private XmlNode CreateXliffOfTranslationUnitV12(TranslationUnit translationUnit)
-        {
-            XmlDocument xmlDocument = new XmlDocument();
-            XmlElement translationUnitNode = XmlDocument.CreateElement(Constants.XML_NODE_TRANSLATION_UNIT_V12);
-
-            throw new NotImplementedException();
-        }
-
-        private XmlNode CreateXliffOfTranslationUnitV20(TranslationUnit translationUnit)
-        {
-            throw new NotImplementedException();
         }
     }
 }

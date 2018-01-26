@@ -3,6 +3,8 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.IO;
+using System.Text;
 using System.Windows;
 using System.Xml;
 using XliffTranslatorTool.Parser;
@@ -217,7 +219,13 @@ namespace XliffTranslatorTool
                         throw new NotImplementedException($"Not implemented MessageBoxResult '{messageBoxResult.ToString()}'");
                 }
 
-                xmlDocument.Save(saveFileDialog.FileName);
+                StringWriter stringWriter = new StringWriter();
+                xmlDocument.Save(stringWriter);
+                string indented = stringWriter.ToString().Replace("&amp;", "&");
+                using (StreamWriter streamWriter = new StreamWriter(saveFileDialog.FileName))
+                {
+                    streamWriter.Write(indented);
+                }
                 MessageBox.Show("Saved", "Info", MessageBoxButton.OK, MessageBoxImage.Information);
             }
         }
