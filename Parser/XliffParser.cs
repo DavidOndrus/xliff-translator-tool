@@ -14,6 +14,8 @@ namespace XliffTranslatorTool.Parser
         private XmlNamespaceManager XmlNamespaceManager { get; set; } 
         private XmlDocument XmlDocument { get; } = new XmlDocument();
         private string SourceLanguage { get; set; }
+        private XliffVersion LastFileXliffVersion { get; set; }
+        private string LastFilePath { get; set; }
         public enum XliffVersion
         {
             V12,
@@ -28,16 +30,21 @@ namespace XliffTranslatorTool.Parser
             switch (XmlDocument.DocumentElement.GetAttribute(Constants.XML_ATTRIBUTE_VERSION))
             {
                 case Constants.XLIFF_VERSION_V12:
+                    this.LastFileXliffVersion = XliffVersion.V12;
                     return XliffVersion.V12;
                 case Constants.XLIFF_VERSION_V20:
+                    this.LastFileXliffVersion = XliffVersion.V20;
                     return XliffVersion.V20;
                 default:
+                    this.LastFileXliffVersion = XliffVersion.UNKNOWN;
                     return XliffVersion.UNKNOWN;
             }
         }
 
         public ObservableCollection<TranslationUnit> GetTranslationUnitsFromFile(string filePath)
         {
+            this.LastFilePath = filePath;
+
             string text = string.Empty;
             int originalTextSize = -1, escapedTextLength = -1;
             using (StreamReader streamReader = new StreamReader(filePath))
@@ -379,6 +386,16 @@ namespace XliffTranslatorTool.Parser
             xmlDocument.AppendChild(rootNode);
 
             return xmlDocument;
+        }
+
+        public XliffVersion GetLastFileXliffVersion()
+        {
+            return this.LastFileXliffVersion;
+        }
+
+        public string GetLastFilePath()
+        {
+            return this.LastFilePath;
         }
     }
 }

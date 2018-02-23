@@ -77,6 +77,7 @@ namespace XliffTranslatorTool
                     {
                         ImportFileMenuOption.IsEnabled = false;
                         SaveAsMenuOption.IsEnabled = false;
+                        SaveMenuOption.IsEnabled = false;
                         MainDataGrid.Visibility = Visibility.Hidden;
                         break;
                     }
@@ -84,6 +85,7 @@ namespace XliffTranslatorTool
                     {
                         ImportFileMenuOption.IsEnabled = true;
                         SaveAsMenuOption.IsEnabled = true;
+                        SaveMenuOption.IsEnabled = true;
                         MainDataGrid.Visibility = Visibility.Visible;
                         break;
                     }
@@ -251,14 +253,29 @@ namespace XliffTranslatorTool
                         throw new NotImplementedException($"Not implemented MessageBoxResult '{messageBoxResult.ToString()}'");
                 }
 
-                StringWriter stringWriter = new StringWriter();
-                xmlDocument.Save(stringWriter);
-                string indented = stringWriter.ToString().Replace("&amp;", "&");
-                using (StreamWriter streamWriter = new StreamWriter(saveFileDialog.FileName))
-                {
-                    streamWriter.Write(indented);
-                }
-                MessageBox.Show("Saved", "Info", MessageBoxButton.OK, MessageBoxImage.Information);
+                Save(xmlDocument, saveFileDialog.FileName);
+            }
+        }
+
+        private void SaveMenuOption_Click(object sender, RoutedEventArgs e)
+        {
+            Save(XliffParser.CreateXliffDocument(XliffParser.GetLastFileXliffVersion(), MainDataGrid.ItemsSource), XliffParser.GetLastFilePath());
+        }
+
+        private void Save(XmlDocument xmlDocument, string filePath)
+        {
+            WriteToFile(xmlDocument, filePath);
+            MessageBox.Show("Saved", "Info", MessageBoxButton.OK, MessageBoxImage.Information);
+        }
+
+        private void WriteToFile(XmlDocument xmlDocument, string filePath)
+        {
+            StringWriter stringWriter = new StringWriter();
+            xmlDocument.Save(stringWriter);
+            string indented = stringWriter.ToString().Replace("&amp;", "&");
+            using (StreamWriter streamWriter = new StreamWriter(filePath, false))
+            {
+                streamWriter.Write(indented);
             }
         }
 
