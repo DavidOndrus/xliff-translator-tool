@@ -3,9 +3,9 @@ Simple XLIFF (\*.xlf/\*.xliff 1.2 & 2.0) editor with merge/import feature
 
 I made this tool mainly for *Angular* translations because I couldn't find any simple, suitable and free tool. It's compatible with XLIFF 1.2 and XLIFF 2.0 and you can even combine them (open 1.2, import 2.0).
 
-With this tool you can simply manage and update your translation files. Open old translations file, import newly generated file. Old translations won't be touched and new translations will be added to the list. Write translations in "Target" column, then "Save as..." file. Columns are resizable, reorderable and sortable.
+With this tool you can simply manage and update your translation files. Open old translations file, import newly generated file. 
 
-EXAMPLE: Opening "strings.en.xlf" with 4 translation units and then importing "strings.en.xlf" (same file) will lead to the same list of 4 translation units not changed by import.
+It's recommended to use "Save As..." option instead of "Save" because your original file won't be touched and you can revert your changes if something went wrong. Also, only with "Save As..." you can choose custom filename and choose from output XLIFF format version (1.2 or 2.0).
 
 WARNING: This tool also removes all unnecessary elements from XLIFF file such as "location" of translation in source code.
 
