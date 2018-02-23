@@ -4,10 +4,10 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.IO;
-using System.Text;
 using System.Windows;
 using System.Xml;
 using XliffTranslatorTool.Parser;
+using System.Linq;
 
 namespace XliffTranslatorTool
 {
@@ -132,10 +132,27 @@ namespace XliffTranslatorTool
 
         private void ImportFileMenuOption_Click(object sender, RoutedEventArgs e)
         {
-            ImportFile();
+            MessageBoxResult messageBoxResult = MessageBox.Show("YES - update existing records if ID of translation unit matches\nNO - import only new translation units", "Import mode", MessageBoxButton.YesNo, MessageBoxImage.Question);
+            switch (messageBoxResult)
+            {
+                case MessageBoxResult.Yes:
+                    {
+                        ImportFile(true);
+                        break;
+                    }
+                case MessageBoxResult.No:
+                    {
+                        ImportFile(false);
+                        break;
+                    }
+                case MessageBoxResult.None:
+                    return;
+                default:
+                    throw new NotImplementedException($"Not implemented MessageBoxResult '{messageBoxResult.ToString()}'");
+            }
         }
 
-        private void ImportFile()
+        private void ImportFile(bool updateExisting)
         {
             OpenFileDialog openFileDialog = CreateOpenFileDialog();
             openFileDialog.Title = "Import";
@@ -155,7 +172,22 @@ namespace XliffTranslatorTool
                         {
                             list.Add(translationUnit);
                         }
+                        else
+                        {
+                            if (updateExisting)
+                            {
+                                TranslationUnit originalTranslationUnit = list.Where(otu => otu.Identifier == translationUnit.Identifier).FirstOrDefault();
+                                if (originalTranslationUnit != null)
+                                {
+                                    originalTranslationUnit.Description = translationUnit.Description;
+                                    originalTranslationUnit.Meaning = translationUnit.Meaning;
+                                    originalTranslationUnit.Source = translationUnit.Source;
+                                    originalTranslationUnit.Target = translationUnit.Target;
+                                }
+                            }
+                        }
                     }
+                    MainDataGrid.Items.Refresh();
                 }
             }
         }
