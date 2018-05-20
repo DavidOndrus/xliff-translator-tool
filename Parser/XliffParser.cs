@@ -67,6 +67,7 @@ namespace XliffTranslatorTool.Parser
             catch (XmlException ex)
             {
                 MessageBox.Show("Error occured while reading file. Please, create new issue with this report on GitHub:\n\n" + ex.Message, "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                return null;
             }
 
             XmlNamespaceManager = new XmlNamespaceManager(XmlDocument.NameTable);
