@@ -272,7 +272,7 @@ namespace XliffTranslatorTool
         {
             StringWriter stringWriter = new StringWriter();
             xmlDocument.Save(stringWriter);
-            string indented = stringWriter.ToString().Replace("&amp;", "&");
+            string indented = stringWriter.ToString().Replace("_AMP;_", "&").Replace("_LT;_", "<").Replace("_GT;_", ">");
             using (StreamWriter streamWriter = new StreamWriter(filePath, false))
             {
                 streamWriter.Write(indented);

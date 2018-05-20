@@ -52,7 +52,7 @@ namespace XliffTranslatorTool.Parser
                 text = streamReader.ReadToEnd();
                 originalTextSize = text.Length;
             }
-            text = text.Replace("&", "&amp;");
+            text = text.Replace("&", "_AMP;_");
             escapedTextLength = text.Length;
 
             //if (originalTextSize != escapedTextLength)
@@ -120,8 +120,8 @@ namespace XliffTranslatorTool.Parser
                 string meaning = string.Empty;
                 string description = string.Empty;
                 string identifier = translationUnitNode.Attributes.GetNamedItem(Constants.XML_ATTRIBUTE_IDENTIFIER)?.Value ?? string.Empty;
-                string source = translationUnitNode.SelectSingleNode($"{NAMESPACE_PREFIX}:{Constants.XML_NODE_SOURCE}", XmlNamespaceManager)?.InnerText ?? string.Empty;
-                string target = translationUnitNode.SelectSingleNode($"{NAMESPACE_PREFIX}:{Constants.XML_NODE_TARGET}", XmlNamespaceManager)?.InnerText ?? string.Empty;
+                string source = EncodeAndCleanValue(translationUnitNode.SelectSingleNode($"{NAMESPACE_PREFIX}:{Constants.XML_NODE_SOURCE}", XmlNamespaceManager)?.InnerXml ?? string.Empty, XliffVersion.V12);
+                string target = EncodeAndCleanValue(translationUnitNode.SelectSingleNode($"{NAMESPACE_PREFIX}:{Constants.XML_NODE_TARGET}", XmlNamespaceManager)?.InnerXml ?? string.Empty, XliffVersion.V12);
 
                 XmlNodeList noteNodes = translationUnitNode.SelectNodes($"{NAMESPACE_PREFIX}:{Constants.XML_NODE_NOTE}", XmlNamespaceManager);
                 for (int noteNodeIndex = 0; noteNodeIndex < noteNodes.Count; noteNodeIndex++)
@@ -160,6 +160,27 @@ namespace XliffTranslatorTool.Parser
             return translationUnits;
         }
 
+        private string EncodeAndCleanValue(string str, XliffVersion xliffVersion)
+        {
+            switch (xliffVersion)
+            {
+                case XliffVersion.V12:
+                    {
+                        str = str.Replace(" xmlns=\"urn:oasis:names:tc:xliff:document:1.2\" ", string.Empty);
+                        break;
+                    }
+                case XliffVersion.V20:
+                    {
+                        str = str.Replace(" xmlns=\"urn:oasis:names:tc:xliff:document:2.0\" ", string.Empty);
+                        break;
+                    }
+                default:
+                    throw new NotImplementedException("Not implemented XliffVersion");
+            }
+
+            return str.Replace("<", "_LT;_").Replace(">", "_GT;_");
+        }
+
         private ObservableCollection<TranslationUnit> GetTranslationUnitsV20()
         {
             XmlNodeList translationUnitNodes = XmlDocument.DocumentElement.SelectNodes($"//{NAMESPACE_PREFIX}:{Constants.XML_NODE_TRANSLATION_UNIT_V20}", XmlNamespaceManager);
@@ -173,8 +194,8 @@ namespace XliffTranslatorTool.Parser
                 string identifier = translationUnitNode.Attributes.GetNamedItem(Constants.XML_ATTRIBUTE_IDENTIFIER)?.Value ?? string.Empty;
 
                 XmlNode segmentNode = translationUnitNode.SelectSingleNode($"{NAMESPACE_PREFIX}:{Constants.XML_NODE_SEGMENT_V20}", XmlNamespaceManager);
-                string source = segmentNode?.SelectSingleNode($"{NAMESPACE_PREFIX}:{Constants.XML_NODE_SOURCE}", XmlNamespaceManager)?.InnerText ?? string.Empty;
-                string target = segmentNode?.SelectSingleNode($"{NAMESPACE_PREFIX}:{Constants.XML_NODE_TARGET}", XmlNamespaceManager)?.InnerText ?? string.Empty;
+                string source = EncodeAndCleanValue(segmentNode?.SelectSingleNode($"{NAMESPACE_PREFIX}:{Constants.XML_NODE_SOURCE}", XmlNamespaceManager)?.InnerXml ?? string.Empty, XliffVersion.V20);
+                string target = EncodeAndCleanValue(segmentNode?.SelectSingleNode($"{NAMESPACE_PREFIX}:{Constants.XML_NODE_TARGET}", XmlNamespaceManager)?.InnerXml ?? string.Empty, XliffVersion.V20);
 
                 XmlNode notesNode = translationUnitNode.SelectSingleNode($"{NAMESPACE_PREFIX}:{Constants.XML_NODE_NOTES_V20}", XmlNamespaceManager);
                 if (notesNode != null)
