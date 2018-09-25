@@ -26,9 +26,27 @@
                 <DataGrid.Columns>
                     <DataGridTextColumn Binding="{Binding Identifier}" Header="Identifier"/>
                     <DataGridTextColumn Binding="{Binding Meaning}" Header="Meaning"/>
-                    <DataGridTextColumn Binding="{Binding Description}" Header="Description"/>
-                    <DataGridTextColumn Binding="{Binding Source}" Header="Source"/>
-                    <DataGridTextColumn Binding="{Binding Target}" Header="Target" Width="*"/>
+                    <DataGridTextColumn Binding="{Binding Description}" Header="Description">
+                        <DataGridTextColumn.EditingElementStyle>
+                            <Style TargetType="TextBox">
+                                <Setter Property="AcceptsReturn" Value="true" />
+                            </Style>
+                        </DataGridTextColumn.EditingElementStyle>
+                    </DataGridTextColumn>
+                    <DataGridTextColumn Binding="{Binding Source}" Header="Source">
+                        <DataGridTextColumn.EditingElementStyle>
+                            <Style TargetType="TextBox">
+                                <Setter Property="AcceptsReturn" Value="true" />
+                            </Style>
+                        </DataGridTextColumn.EditingElementStyle>
+                    </DataGridTextColumn>
+                    <DataGridTextColumn Binding="{Binding Target}" Header="Target" Width="*">
+                        <DataGridTextColumn.EditingElementStyle>
+                            <Style TargetType="TextBox">
+                                <Setter Property="AcceptsReturn" Value="true" />
+                            </Style>
+                        </DataGridTextColumn.EditingElementStyle>
+                    </DataGridTextColumn>
                 </DataGrid.Columns>
             </DataGrid>
         </StackPanel>
