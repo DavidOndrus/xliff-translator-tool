@@ -7,48 +7,47 @@
         Title="XLIFF Translator Tool" Height="350" Width="525"
         Loaded="Window_Loaded"
         Closing="Window_Closing">
-    <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
-        <StackPanel Orientation="Vertical">
-            <Menu x:Name="FileMenuItem" Height="25" VerticalAlignment="Top" VerticalContentAlignment="Center">
-                <Menu.ItemsPanel>
-                    <ItemsPanelTemplate>
-                        <Grid/>
-                    </ItemsPanelTemplate>
-                </Menu.ItemsPanel>
-                <MenuItem Header="File" HorizontalAlignment="Left">
-                    <MenuItem x:Name="OpenFileMenuOption" Header="Open file..." Click="OpenFileMenuOption_Click"/>
-                    <MenuItem x:Name="ImportFileMenuOption" Header="Import/Merge with file..." Click="ImportFileMenuOption_Click"/>
-                    <MenuItem x:Name="SaveMenuOption" Header="Save" Click="SaveMenuOption_Click"/>
-                    <MenuItem x:Name="SaveAsMenuOption" Header="Save as..." Click="SaveAsMenuOption_Click"/>
-                </MenuItem>
-            </Menu>
-            <DataGrid x:Name="MainDataGrid" VerticalAlignment="Top" FrozenColumnCount="1" AutoGenerateColumns="False">
-                <DataGrid.Columns>
-                    <DataGridTextColumn Binding="{Binding Identifier}" Header="Identifier"/>
-                    <DataGridTextColumn Binding="{Binding Meaning}" Header="Meaning"/>
-                    <DataGridTextColumn Binding="{Binding Description}" Header="Description">
-                        <DataGridTextColumn.EditingElementStyle>
-                            <Style TargetType="TextBox">
-                                <Setter Property="AcceptsReturn" Value="true" />
-                            </Style>
-                        </DataGridTextColumn.EditingElementStyle>
-                    </DataGridTextColumn>
-                    <DataGridTextColumn Binding="{Binding Source}" Header="Source">
-                        <DataGridTextColumn.EditingElementStyle>
-                            <Style TargetType="TextBox">
-                                <Setter Property="AcceptsReturn" Value="true" />
-                            </Style>
-                        </DataGridTextColumn.EditingElementStyle>
-                    </DataGridTextColumn>
-                    <DataGridTextColumn Binding="{Binding Target}" Header="Target" Width="*">
-                        <DataGridTextColumn.EditingElementStyle>
-                            <Style TargetType="TextBox">
-                                <Setter Property="AcceptsReturn" Value="true" />
-                            </Style>
-                        </DataGridTextColumn.EditingElementStyle>
-                    </DataGridTextColumn>
-                </DataGrid.Columns>
-            </DataGrid>
-        </StackPanel>
-    </ScrollViewer>
+
+    <DockPanel>
+        <Menu x:Name="FileMenuItem" Height="25" VerticalAlignment="Top" VerticalContentAlignment="Center" DockPanel.Dock="Top">
+            <Menu.ItemsPanel>
+                <ItemsPanelTemplate>
+                    <Grid/>
+                </ItemsPanelTemplate>
+            </Menu.ItemsPanel>
+            <MenuItem Header="File" HorizontalAlignment="Left">
+                <MenuItem x:Name="OpenFileMenuOption" Header="Open file..." Click="OpenFileMenuOption_Click"/>
+                <MenuItem x:Name="ImportFileMenuOption" Header="Import/Merge with file..." Click="ImportFileMenuOption_Click"/>
+                <MenuItem x:Name="SaveMenuOption" Header="Save" Click="SaveMenuOption_Click"/>
+                <MenuItem x:Name="SaveAsMenuOption" Header="Save as..." Click="SaveAsMenuOption_Click"/>
+            </MenuItem>
+        </Menu>
+        <DataGrid x:Name="MainDataGrid" VerticalAlignment="Top" FrozenColumnCount="1" AutoGenerateColumns="False">
+            <DataGrid.Columns>
+                <DataGridTextColumn Binding="{Binding Identifier}" Header="Identifier" MinWidth="100"/>
+                <DataGridTextColumn Binding="{Binding Meaning}" Header="Meaning" MinWidth="100"/>
+                <DataGridTextColumn Binding="{Binding Description}" Header="Description" MinWidth="100">
+                    <DataGridTextColumn.EditingElementStyle>
+                        <Style TargetType="TextBox">
+                            <Setter Property="AcceptsReturn" Value="true" />
+                        </Style>
+                    </DataGridTextColumn.EditingElementStyle>
+                </DataGridTextColumn>
+                <DataGridTextColumn Binding="{Binding Source}" Header="Source" MinWidth="100">
+                    <DataGridTextColumn.EditingElementStyle>
+                        <Style TargetType="TextBox">
+                            <Setter Property="AcceptsReturn" Value="true" />
+                        </Style>
+                    </DataGridTextColumn.EditingElementStyle>
+                </DataGridTextColumn>
+                <DataGridTextColumn Binding="{Binding Target}" Header="Target" Width="*">
+                    <DataGridTextColumn.EditingElementStyle>
+                        <Style TargetType="TextBox">
+                            <Setter Property="AcceptsReturn" Value="true" />
+                        </Style>
+                    </DataGridTextColumn.EditingElementStyle>
+                </DataGridTextColumn>
+            </DataGrid.Columns>
+        </DataGrid>
+    </DockPanel>
 </Window>
