@@ -353,9 +353,16 @@ namespace XliffTranslatorTool
             //Pre-Update
             UpdateDublicates();
 
-            //Update
-            MainDataGrid.ItemsSource = _TranslationUnits;
-            MainDataGrid.Items.Refresh();
+            try
+            {            
+                //Update
+                MainDataGrid.ItemsSource = _TranslationUnits;
+                MainDataGrid.Items.Refresh();
+            }
+            catch (Exception)
+            {
+            }
+
 
             //Post-Update
             if (_IsShowDublicatesOnly)

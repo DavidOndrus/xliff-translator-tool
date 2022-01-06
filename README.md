@@ -7,13 +7,16 @@ With this tool you can simply manage and update your translation files. Open old
 
 It's recommended to use "Save As..." option instead of "Save" because your original file won't be touched and you can revert your changes if something went wrong. Also, only with "Save As..." you can choose custom filename and choose from output XLIFF format version (1.2 or 2.0).
 
-WARNING: This tool also removes all unnecessary elements from XLIFF file such as "location" of translation in source code.
+Keeps: Unit context information such as purpose, datatype, sourcefile, linenumber
 
 DOWNLOAD: [Releases](https://github.com/DavidOndrus/xliff-translator-tool/releases)
 
 ## Images
-![table image](Images/table.png)
-![menu image](Images/menu.png)
+![table image](Images/empty-targets.png)
+Table view. Empty target rows marked (gray)
+
+![menu image](Images/dublicates-view.png)
+Dublicates only view. Dublicates which differs in target marked (orange).
 
 ## Output
 SOURCE:
@@ -42,9 +45,13 @@ RESULT:
 <xliff version="1.2" xmlns="urn:oasis:names:tc:xliff:document:1.2">
   <file source-language="en">
     <body>
-      <trans-unit id="loginHeaderTitle">
+      <trans-unit id="loginHeaderTitle" datatype="html">
         <source>Login</source>
         <target>Login</target>
+		<context-group purpose="location">
+          <context context-type="sourcefile">app/login/login.component.ts</context>
+          <context context-type="linenumber">7</context>
+        </context-group>
         <note from="description">description</note>
         <note from="meaning">meaning</note>
       </trans-unit>
