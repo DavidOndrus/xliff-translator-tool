@@ -16,9 +16,12 @@ DOWNLOAD: [Releases](https://github.com/DavidOndrus/xliff-translator-tool/releas
 
 Table view. Empty target rows marked (gray)
 
+
+
 ![menu image](Images/dublicates-view.png)
 
 Dublicates only view. Dublicates which differs in target marked (orange).
+
 
 ## Output
 SOURCE:
