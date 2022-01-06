@@ -4,50 +4,85 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         mc:Ignorable="d"
-        Title="XLIFF Translator Tool" Height="350" Width="525"
+        Name="Window"
+        Height="600" Width="800"
         Loaded="Window_Loaded"
         Closing="Window_Closing">
 
+    <Window.Resources>
+        <BooleanToVisibilityConverter x:Key="BoolToVis" />
+    </Window.Resources>
+    
     <DockPanel>
-        <Menu x:Name="FileMenuItem" Height="25" VerticalAlignment="Top" VerticalContentAlignment="Center" DockPanel.Dock="Top">
-            <Menu.ItemsPanel>
-                <ItemsPanelTemplate>
-                    <Grid/>
-                </ItemsPanelTemplate>
-            </Menu.ItemsPanel>
-            <MenuItem Header="File" HorizontalAlignment="Left">
-                <MenuItem x:Name="OpenFileMenuOption" Header="Open file..." Click="OpenFileMenuOption_Click"/>
-                <MenuItem x:Name="ImportFileMenuOption" Header="Import/Merge with file..." Click="ImportFileMenuOption_Click"/>
+        
+        <Menu x:Name="FileMenuItem" Height="25" VerticalAlignment="Top" DockPanel.Dock="Top">
+            
+            <MenuItem Header="File">
+                <MenuItem x:Name="OpenFileMenuOption" Header="Open template file..." Click="OpenFileMenuOption_Click"/>
+                <MenuItem x:Name="ImportFileMenuOption" Header="Merge translation file..." Click="ImportFileMenuOption_Click"/>
                 <MenuItem x:Name="SaveMenuOption" Header="Save" Click="SaveMenuOption_Click"/>
                 <MenuItem x:Name="SaveAsMenuOption" Header="Save as..." Click="SaveAsMenuOption_Click"/>
             </MenuItem>
+
+            <MenuItem Header="Processing">
+                <MenuItem x:Name="TrimOption" Header="Trim blanks (start, end)" Click="TrimBlanks_Click" IsCheckable="false"/>
+            </MenuItem>
+            
+            <MenuItem Header="View">
+                <MenuItem x:Name="ShowDuplicatesOnlyOption" Header="Show Duplicates only" Click="ShowDuplicatesOnlyToggle_Click" IsCheckable="True"/>
+                <MenuItem x:Name="ShowMetaDataOption" Header="Show meta data" Click="ShowMetaDataToggle_Click" IsCheckable="True"/>
+            </MenuItem>
+
         </Menu>
-        <DataGrid x:Name="MainDataGrid" VerticalAlignment="Top" FrozenColumnCount="1" AutoGenerateColumns="False">
+
+        <DataGrid x:Name="MainDataGrid" CurrentCellChanged="MainDataGrid_CurrentCellChanged" VerticalAlignment="Top" AutoGenerateColumns="False" HorizontalScrollBarVisibility="Visible">
+
+            <DataGrid.RowStyle>
+                <Style TargetType="DataGridRow">
+                    <Style.Triggers>
+                        <DataTrigger Binding="{Binding Target}" Value="">
+                            <Setter Property="Background" Value="LightGray"></Setter>
+                        </DataTrigger>
+                        <DataTrigger Binding="{Binding IsMarked}" Value="true">
+                            <Setter Property="Background" Value="Orange"></Setter>
+                        </DataTrigger>
+                        <DataTrigger Binding="{Binding IsVisible}" Value="False">
+                            <Setter Property="Visibility" Value="Collapsed"/>
+                        </DataTrigger>
+                    </Style.Triggers>
+                  </Style>
+            </DataGrid.RowStyle>
+            
             <DataGrid.Columns>
-                <DataGridTextColumn Binding="{Binding Identifier}" Header="Identifier" MinWidth="100"/>
-                <DataGridTextColumn Binding="{Binding Meaning}" Header="Meaning" MinWidth="100"/>
-                <DataGridTextColumn Binding="{Binding Description}" Header="Description" MinWidth="100">
+                
+                <DataGridTextColumn Binding="{Binding Source}" x:Name="SourceColumn" Header="Source" MinWidth="100" Width="350">
                     <DataGridTextColumn.EditingElementStyle>
                         <Style TargetType="TextBox">
                             <Setter Property="AcceptsReturn" Value="true" />
                         </Style>
                     </DataGridTextColumn.EditingElementStyle>
                 </DataGridTextColumn>
-                <DataGridTextColumn Binding="{Binding Source}" Header="Source" MinWidth="100">
+
+                <DataGridTextColumn Binding="{Binding Target}" Header="Target" MinWidth="100" Width="800">
                     <DataGridTextColumn.EditingElementStyle>
                         <Style TargetType="TextBox">
                             <Setter Property="AcceptsReturn" Value="true" />
                         </Style>
                     </DataGridTextColumn.EditingElementStyle>
                 </DataGridTextColumn>
-                <DataGridTextColumn Binding="{Binding Target}" Header="Target" Width="*">
+
+                <DataGridTextColumn Binding="{Binding Identifier}" x:Name="IdColumn" Header="Identifier" MinWidth="100" Visibility="{Binding IsShowMetaData, Converter={StaticResource BoolToVis}}"/>
+                <DataGridTextColumn Binding="{Binding Meaning}" x:Name="MeanColumn" Header="Meaning" MinWidth="100" Visibility="{Binding IsShowMetaData, Converter={StaticResource BoolToVis}}"/>
+                <DataGridTextColumn Binding="{Binding Description}" x:Name="DescColumn" Header="Description" MinWidth="100" Visibility="{Binding IsShowMetaData, Converter={StaticResource BoolToVis}}">
                     <DataGridTextColumn.EditingElementStyle>
                         <Style TargetType="TextBox">
                             <Setter Property="AcceptsReturn" Value="true" />
                         </Style>
                     </DataGridTextColumn.EditingElementStyle>
                 </DataGridTextColumn>
+                
             </DataGrid.Columns>
         </DataGrid>
+        
     </DockPanel>
 </Window>

@@ -37,8 +37,21 @@
         public const string XML_ATTRIBUTE_SOURCE_LANGUAGE_V12 = "source-language";
         public const string XML_ATTRIBUTE_SOURCE_LANGUAGE_V20 = "srcLang";
 
+        public const string XML_ATTRIBUTE_DATATYPE = "datatype";
+        public const string XML_ATTRIBUTE_PURPOSE = "purpose";
+        public const string XML_ATTRIBUTE_CONTEXT_TYPE = "context-type";
+
+
+        //These are attr values -> Definition file?
         public const string XML_ATTRIBUTE_VALUE_DESCRIPTION = "description";
         public const string XML_ATTRIBUTE_VALUE_MEANING = "meaning";
+
+        public const string XML_DATATYPE_HTML = "html";
+        public const string XML_PURPOSE_LOCATION = "location";
+        public const string XML_CONTEXT_TYPE_SOURCEFILE = "sourcefile";
+        public const string XML_CONTEXT_TYPE_LINENUMBER = "linenumber";
         #endregion
+
+
     }
 }
