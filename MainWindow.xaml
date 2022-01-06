@@ -29,7 +29,7 @@
             </MenuItem>
             
             <MenuItem Header="View">
-                <MenuItem x:Name="ShowDublicatesOnlyOption" Header="Show dublicates only" Click="ShowDublicatesOnlyToggle_Click" IsCheckable="True"/>
+                <MenuItem x:Name="ShowDuplicatesOnlyOption" Header="Show Duplicates only" Click="ShowDuplicatesOnlyToggle_Click" IsCheckable="True"/>
                 <MenuItem x:Name="ShowMetaDataOption" Header="Show meta data" Click="ShowMetaDataToggle_Click" IsCheckable="True"/>
             </MenuItem>
 

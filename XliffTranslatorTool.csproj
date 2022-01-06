@@ -116,10 +116,6 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="Images\table.png" />
-    <Resource Include="Images\menu.png" />
-  </ItemGroup>
-  <ItemGroup>
     <Resource Include="Ariil-Alphabet-Letter-X.ico" />
   </ItemGroup>
   <ItemGroup>
@@ -133,6 +129,10 @@
       <ProductName>.NET Framework 3.5 SP1</ProductName>
       <Install>false</Install>
     </BootstrapperPackage>
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\dublicates-view.png" />
+    <Resource Include="Images\empty-targets.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

@@ -21,7 +21,7 @@ namespace XliffTranslatorTool
 
         private bool _ItemsDirty = false;
         private Visibility _IsShowMetaData = Visibility.Hidden;
-        private bool _IsShowDublicatesOnly = false;
+        private bool _IsShowDuplicatesOnly = false;
         private ToolStates CurrentState = ToolStates.None;
 
         public MainWindow()
@@ -82,7 +82,7 @@ namespace XliffTranslatorTool
                         SaveMenuOption.IsEnabled = false;
                         MainDataGrid.Visibility = Visibility.Hidden;
                         TrimOption.IsEnabled = false;
-                        ShowDublicatesOnlyOption.IsEnabled = false;
+                        ShowDuplicatesOnlyOption.IsEnabled = false;
                         break;
                     }
                 case ToolStates.FileOpened:
@@ -92,7 +92,7 @@ namespace XliffTranslatorTool
                         SaveMenuOption.IsEnabled = true;
                         MainDataGrid.Visibility = Visibility.Visible;
                         TrimOption.IsEnabled = true;
-                        ShowDublicatesOnlyOption.IsEnabled = true;
+                        ShowDuplicatesOnlyOption.IsEnabled = true;
                         break;
                     }
                 default:
@@ -342,16 +342,16 @@ namespace XliffTranslatorTool
         }
 
 
-        private void ShowDublicatesOnlyToggle_Click(object sender, RoutedEventArgs e)
+        private void ShowDuplicatesOnlyToggle_Click(object sender, RoutedEventArgs e)
         {
-            _IsShowDublicatesOnly = !_IsShowDublicatesOnly;
+            _IsShowDuplicatesOnly = !_IsShowDuplicatesOnly;
             UpdateUnitListDisplay();
         }
 
         private void UpdateUnitListDisplay()
         {
             //Pre-Update
-            UpdateDublicates();
+            UpdateDuplicates();
 
             try
             {            
@@ -365,19 +365,19 @@ namespace XliffTranslatorTool
 
 
             //Post-Update
-            if (_IsShowDublicatesOnly)
+            if (_IsShowDuplicatesOnly)
                 SortAscendingSource();
         }
 
-        private void UpdateDublicates()
+        private void UpdateDuplicates()
         {
             foreach (var translationUnit in _TranslationUnits)
             {
-                translationUnit.IsVisible = !_IsShowDublicatesOnly;
+                translationUnit.IsVisible = !_IsShowDuplicatesOnly;
                 translationUnit.IsMarked = false;
             }
 
-            if (_IsShowDublicatesOnly)
+            if (_IsShowDuplicatesOnly)
             {
                 var duplicates = _TranslationUnits.GroupBy(x => x.Source)
                                                         .Where(g => g.Count() > 1)
