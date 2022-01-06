@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO;
 using System.Windows;
@@ -46,19 +47,13 @@ namespace XliffTranslatorTool.Parser
             this.LastFilePath = filePath;
 
             string text = string.Empty;
-            int originalTextSize = -1, escapedTextLength = -1;
             using (StreamReader streamReader = new StreamReader(filePath))
             {
                 text = streamReader.ReadToEnd();
-                originalTextSize = text.Length;
             }
-            text = text.Replace("&", "_AMP;_");
-            escapedTextLength = text.Length;
 
-            //if (originalTextSize != escapedTextLength)
-            //{
-            //    MessageBox.Show("There were some invalid characters in the file.\nSince default XML parser doesn't work with invalid XML format file, these characters were replaced.\n& = &amp;", "Invalid file", MessageBoxButton.OK, MessageBoxImage.Information);
-            //}
+            text = File.ReadAllText(filePath);
+            text = text.Replace("&", "_AMP;_");
 
             try
             {
@@ -120,8 +115,45 @@ namespace XliffTranslatorTool.Parser
                 string meaning = string.Empty;
                 string description = string.Empty;
                 string identifier = translationUnitNode.Attributes.GetNamedItem(Constants.XML_ATTRIBUTE_IDENTIFIER)?.Value ?? string.Empty;
+                string datatype = translationUnitNode.Attributes.GetNamedItem(Constants.XML_ATTRIBUTE_DATATYPE)?.Value ?? string.Empty;
                 string source = EncodeAndCleanValue(translationUnitNode.SelectSingleNode($"{NAMESPACE_PREFIX}:{Constants.XML_NODE_SOURCE}", XmlNamespaceManager)?.InnerXml ?? string.Empty, XliffVersion.V12);
                 string target = EncodeAndCleanValue(translationUnitNode.SelectSingleNode($"{NAMESPACE_PREFIX}:{Constants.XML_NODE_TARGET}", XmlNamespaceManager)?.InnerXml ?? string.Empty, XliffVersion.V12);
+
+                string purpose = EncodeAndCleanValue(translationUnitNode.SelectSingleNode($"{NAMESPACE_PREFIX}:{Constants.XML_NODE_CONTEXT_GROUP_V12}", XmlNamespaceManager)?.Attributes?.GetNamedItem(Constants.XML_ATTRIBUTE_PURPOSE)?.Value ?? string.Empty, XliffVersion.V12);
+
+                string sourcefile = string.Empty;
+                List<int> linenumbers = new List<int>();
+
+                XmlNode contextGroup = translationUnitNode.SelectSingleNode($"{NAMESPACE_PREFIX}:{Constants.XML_NODE_CONTEXT_GROUP_V12}", XmlNamespaceManager);
+                if(contextGroup != null)
+                {
+                    XmlNodeList contextNodes = contextGroup.SelectNodes($"{NAMESPACE_PREFIX}:{Constants.XML_NODE_CONTEXT_V12}", XmlNamespaceManager);
+                    foreach (XmlNode contextNode in contextNodes)
+                    {
+                        string cxtType = contextNode.Attributes.GetNamedItem(Constants.XML_ATTRIBUTE_CONTEXT_TYPE)?.Value ?? string.Empty;
+                        string value = contextNode.InnerText ?? string.Empty;
+
+                        switch (cxtType)
+                        {
+                            case Constants.XML_CONTEXT_TYPE_SOURCEFILE:
+                                sourcefile = value;
+                                break;
+                            case Constants.XML_CONTEXT_TYPE_LINENUMBER:
+                                string[] numberList = value.Split(',');
+                                foreach (var number in numberList)
+                                {
+                                    int d = 0;
+                                    if (int.TryParse(number, out d))
+                                    {
+                                        linenumbers.Add(d);
+                                    }
+                                }
+                                break;
+                            default:
+                                break;
+                        }
+                    }
+                }
 
                 XmlNodeList noteNodes = translationUnitNode.SelectNodes($"{NAMESPACE_PREFIX}:{Constants.XML_NODE_NOTE}", XmlNamespaceManager);
                 for (int noteNodeIndex = 0; noteNodeIndex < noteNodes.Count; noteNodeIndex++)
@@ -153,7 +185,11 @@ namespace XliffTranslatorTool.Parser
                     Source = source,
                     Target = target,
                     Meaning = meaning,
-                    Description = description
+                    Description = description,
+                    DataType = datatype,
+                    Purpose = purpose,
+                    SourceFile = sourcefile,
+                    LineNumbers = linenumbers
                 });
             }
 
@@ -288,6 +324,13 @@ namespace XliffTranslatorTool.Parser
                 identifierAttribute.Value = translationUnit.Identifier;
                 translationUnitNode.Attributes.Append(identifierAttribute);
 
+                if (!String.IsNullOrEmpty(translationUnit.DataType))
+                {
+                    XmlAttribute dataTypeAttr = xmlDocument.CreateAttribute(Constants.XML_ATTRIBUTE_DATATYPE);
+                    dataTypeAttr.Value = translationUnit.DataType;
+                    translationUnitNode.Attributes.Append(dataTypeAttr);
+                }
+
                 XmlNode sourceNode = xmlDocument.CreateElement(Constants.XML_NODE_SOURCE);
                 sourceNode.InnerText = translationUnit.Source;
                 translationUnitNode.AppendChild(sourceNode);
@@ -316,6 +359,39 @@ namespace XliffTranslatorTool.Parser
                     meaningNode.Attributes.Append(fromAttribute);
                     meaningNode.InnerText = translationUnit.Meaning;
                     translationUnitNode.AppendChild(meaningNode);
+                }
+
+                if (!String.IsNullOrEmpty(translationUnit.Purpose))
+                {
+                    XmlNode contextGroupNode = xmlDocument.CreateElement(Constants.XML_NODE_CONTEXT_GROUP_V12);
+
+                    XmlAttribute purposeAttr = xmlDocument.CreateAttribute(Constants.XML_ATTRIBUTE_PURPOSE);
+                    purposeAttr.Value = translationUnit.Purpose;
+                    contextGroupNode.Attributes.Append(purposeAttr);
+
+                    if (!String.IsNullOrEmpty(translationUnit.SourceFile))
+                    {
+                        XmlNode sourcefileNode = xmlDocument.CreateElement(Constants.XML_NODE_CONTEXT_V12);
+
+                        XmlAttribute sourcefileAttr = xmlDocument.CreateAttribute(Constants.XML_ATTRIBUTE_CONTEXT_TYPE);
+                        sourcefileAttr.Value = Constants.XML_CONTEXT_TYPE_SOURCEFILE;
+                        sourcefileNode.Attributes.Append(sourcefileAttr);
+                        sourcefileNode.InnerText = translationUnit.SourceFile;
+                        contextGroupNode.AppendChild(sourcefileNode);
+                    }
+
+                    if (translationUnit.LineNumbers != null && translationUnit.LineNumbers.Count > 0)
+                    {
+                        XmlNode lineNumberNode = xmlDocument.CreateElement(Constants.XML_NODE_CONTEXT_V12);
+
+                        XmlAttribute lineNumberAttr = xmlDocument.CreateAttribute(Constants.XML_ATTRIBUTE_CONTEXT_TYPE);
+                        lineNumberAttr.Value = Constants.XML_CONTEXT_TYPE_LINENUMBER;
+                        lineNumberNode.Attributes.Append(lineNumberAttr);
+                        lineNumberNode.InnerText = String.Join(",",translationUnit.LineNumbers);
+                        contextGroupNode.AppendChild(lineNumberNode);
+                    }
+
+                    translationUnitNode.AppendChild(contextGroupNode);
                 }
 
                 bodyNode.AppendChild(translationUnitNode);

@@ -8,29 +8,21 @@ using System.Windows;
 using System.Xml;
 using XliffTranslatorTool.Parser;
 using System.Linq;
+using System.Runtime.CompilerServices;
 
 namespace XliffTranslatorTool
 {
     public partial class MainWindow : Window
     {
-        private enum State
-        {
-            Loaded,
-            FileOpened
-        }
+        private string _OpenedFilePath;
 
-        private string OpenedFileName { get; set; }
-        private XliffParser XliffParser { get; set; } = new XliffParser();
-        private State _currentState;
-        private State CurrentState
-        {
-            get => _currentState;
-            set
-            {
-                _currentState = value;
-                OnStateChanged();
-            }
-        }
+        private XliffParser _XliffParser = new XliffParser();
+        private ObservableCollection<TranslationUnit> _TranslationUnits;
+
+        private bool _ItemsDirty = false;
+        private Visibility _IsShowMetaData = Visibility.Hidden;
+        private bool _IsShowDublicatesOnly = false;
+        private ToolStates CurrentState = ToolStates.None;
 
         public MainWindow()
         {
@@ -39,75 +31,82 @@ namespace XliffTranslatorTool
 
         private void Window_Loaded(object sender, RoutedEventArgs e)
         {
-            SetState(State.Loaded);
+            SetToolState(ToolStates.Loaded);
+            UpdateTitle();
+            UpdateColumnVisibility();
         }
 
         private void Window_Closing(object sender, CancelEventArgs e)
         {
-            if (MainDataGrid.HasItems)
+            if (_ItemsDirty)
             {
-                MessageBoxResult messageBoxResult = MessageBox.Show("Save as new file ?", "Question", MessageBoxButton.YesNoCancel, MessageBoxImage.Question);
+                MessageBoxResult messageBoxResult = MessageBox.Show("Save changes?", "Question", MessageBoxButton.YesNoCancel, MessageBoxImage.Question);
                 switch (messageBoxResult)
                 {
-                    case MessageBoxResult.None:
+                    case MessageBoxResult.Yes:
+                        Save(_XliffParser.CreateXliffDocument(_XliffParser.GetLastFileXliffVersion(), MainDataGrid.ItemsSource), _OpenedFilePath);
+                        break;
                     case MessageBoxResult.Cancel:
-                        {
                             e.Cancel = true;
                             break;
-                        }
-                    case MessageBoxResult.Yes:
-                        {
-                            SaveAs();
-                            break;
-                        }
                     case MessageBoxResult.No:
-                        {
                             e.Cancel = false;
                             break;
-                        }
+                    default:
+                        break;
                 }
             }
         }
 
-        private void OnStateChanged()
+        private void UpdateTitle()
         {
+            string dirtySuffix = "";
+            if (_ItemsDirty)
+                dirtySuffix = "*";
+
+            if (String.IsNullOrEmpty(_OpenedFilePath))
+                Title = "XLIFF Translator Tool";
+            else
+                Title = "XLIFF Translator Tool  (" + _OpenedFilePath + ")" + dirtySuffix;
+        }
+
+        private void SetToolState(ToolStates newState)
+        {
+            CurrentState = newState;
             switch (CurrentState)
             {
-                case State.Loaded:
+                case ToolStates.Loaded:
                     {
                         ImportFileMenuOption.IsEnabled = false;
                         SaveAsMenuOption.IsEnabled = false;
                         SaveMenuOption.IsEnabled = false;
                         MainDataGrid.Visibility = Visibility.Hidden;
+                        TrimOption.IsEnabled = false;
+                        ShowDublicatesOnlyOption.IsEnabled = false;
                         break;
                     }
-                case State.FileOpened:
+                case ToolStates.FileOpened:
                     {
                         ImportFileMenuOption.IsEnabled = true;
                         SaveAsMenuOption.IsEnabled = true;
                         SaveMenuOption.IsEnabled = true;
                         MainDataGrid.Visibility = Visibility.Visible;
+                        TrimOption.IsEnabled = true;
+                        ShowDublicatesOnlyOption.IsEnabled = true;
                         break;
                     }
                 default:
-                    throw new NotImplementedException($"WindowState '{CurrentState.ToString()}' not implemented");
+                    break;
             }
-        }
-
-        private void SetState(State state)
-        {
-            CurrentState = state;
         }
 
         private void OpenFileMenuOption_Click(object sender, RoutedEventArgs e)
         {
-            if (CurrentState == State.FileOpened)
+            if (CurrentState == ToolStates.FileOpened)
             {
                 MessageBoxResult messageBoxResult = MessageBox.Show("Opening a new file will overwrite your current data and your changes will be lost.\nContinue ?", "Warning", MessageBoxButton.YesNo, MessageBoxImage.Warning);
                 if (messageBoxResult == MessageBoxResult.No)
-                {
                     return;
-                }
             }
 
             OpenFile();
@@ -118,16 +117,15 @@ namespace XliffTranslatorTool
             OpenFileDialog openFileDialog = CreateOpenFileDialog();
             bool? result = openFileDialog.ShowDialog();
 
-            string filePath = openFileDialog.FileName;
-            OpenedFileName = openFileDialog.SafeFileName;
-
+            _OpenedFilePath = openFileDialog.FileName;
             if (result == true)
             {
-                ObservableCollection<TranslationUnit> translationUnits = XliffParser.GetTranslationUnitsFromFile(filePath);
-                if (AreTranslationUnitsValid(translationUnits))
+                _TranslationUnits = _XliffParser.GetTranslationUnitsFromFile(_OpenedFilePath);
+                if (AreTranslationUnitsValid(_TranslationUnits))
                 {
-                    MainDataGrid.ItemsSource = translationUnits;
-                    SetState(State.FileOpened);
+                    UpdateUnitListDisplay();
+                    SetToolState(ToolStates.FileOpened);
+                    UpdateTitle();
                 }
             }
         }
@@ -164,7 +162,9 @@ namespace XliffTranslatorTool
 
             if (result == true)
             {
-                ObservableCollection<TranslationUnit> newTranslationUnits = XliffParser.GetTranslationUnitsFromFile(filePath);
+                UpdateTitle();
+
+                ObservableCollection<TranslationUnit> newTranslationUnits = _XliffParser.GetTranslationUnitsFromFile(filePath);
                 if (AreTranslationUnitsValid(newTranslationUnits))
                 {
                     ObservableCollection<TranslationUnit> list = (ObservableCollection<TranslationUnit>)MainDataGrid.ItemsSource;
@@ -194,6 +194,16 @@ namespace XliffTranslatorTool
             }
         }
 
+        private static OpenFileDialog CreateOpenFileDialog()
+        {
+            return new OpenFileDialog
+            {
+                DefaultExt = Constants.FILE_DIALOG_DEFAULT_EXT,
+                Filter = Constants.FILE_DIALOG_FILTER,
+                Multiselect = false
+            };
+        }
+
         private bool AreTranslationUnitsValid(IList<TranslationUnit> translationUnits)
         {
             if (translationUnits == null)
@@ -212,6 +222,11 @@ namespace XliffTranslatorTool
             return false;
         }
 
+        private void SaveMenuOption_Click(object sender, RoutedEventArgs e)
+        {
+            Save(_XliffParser.CreateXliffDocument(_XliffParser.GetLastFileXliffVersion(), MainDataGrid.ItemsSource), _OpenedFilePath);
+        }
+
         private void SaveAsMenuOption_Click(object sender, RoutedEventArgs e)
         {
             SaveAs();
@@ -221,7 +236,7 @@ namespace XliffTranslatorTool
         {
             SaveFileDialog saveFileDialog = new SaveFileDialog
             {
-                FileName = OpenedFileName,
+                FileName = Path.GetFileName(_OpenedFilePath),
                 DefaultExt = Constants.FILE_DIALOG_DEFAULT_EXT,
                 Filter = Constants.FILE_DIALOG_FILTER,
                 CheckPathExists = true,
@@ -239,12 +254,12 @@ namespace XliffTranslatorTool
                 {
                     case MessageBoxResult.Yes:
                         {
-                            xmlDocument = XliffParser.CreateXliffDocument(XliffParser.XliffVersion.V12, MainDataGrid.ItemsSource);
+                            xmlDocument = _XliffParser.CreateXliffDocument(XliffParser.XliffVersion.V12, MainDataGrid.ItemsSource);
                             break;
                         }
                     case MessageBoxResult.No:
                         {
-                            xmlDocument = XliffParser.CreateXliffDocument(XliffParser.XliffVersion.V20, MainDataGrid.ItemsSource);
+                            xmlDocument = _XliffParser.CreateXliffDocument(XliffParser.XliffVersion.V20, MainDataGrid.ItemsSource);
                             break;
                         }
                     case MessageBoxResult.None:
@@ -257,14 +272,10 @@ namespace XliffTranslatorTool
             }
         }
 
-        private void SaveMenuOption_Click(object sender, RoutedEventArgs e)
-        {
-            Save(XliffParser.CreateXliffDocument(XliffParser.GetLastFileXliffVersion(), MainDataGrid.ItemsSource), XliffParser.GetLastFilePath());
-        }
-
         private void Save(XmlDocument xmlDocument, string filePath)
         {
             WriteToFile(xmlDocument, filePath);
+            SetDirty(false);
             MessageBox.Show("Saved", "Info", MessageBoxButton.OK, MessageBoxImage.Information);
         }
 
@@ -279,14 +290,114 @@ namespace XliffTranslatorTool
             }
         }
 
-        private static OpenFileDialog CreateOpenFileDialog()
+
+        private void ShowMetaDataToggle_Click(object sender, RoutedEventArgs e)
         {
-            return new OpenFileDialog
+            if (_IsShowMetaData == Visibility.Hidden)
             {
-                DefaultExt = Constants.FILE_DIALOG_DEFAULT_EXT,
-                Filter = Constants.FILE_DIALOG_FILTER,
-                Multiselect = false
-            };
+                _IsShowMetaData = Visibility.Visible;
+                ShowMetaDataOption.IsChecked = true;
+            }
+            else
+            {
+                _IsShowMetaData = Visibility.Hidden;
+                ShowMetaDataOption.IsChecked = false;
+            }
+
+            UpdateColumnVisibility();
         }
+
+        private void UpdateColumnVisibility()
+        {
+            IdColumn.Visibility = _IsShowMetaData;
+            MeanColumn.Visibility = _IsShowMetaData;
+            DescColumn.Visibility = _IsShowMetaData;
+        }
+
+        private void TrimBlanks_Click(object sender, RoutedEventArgs e)
+        {
+            if (_TranslationUnits != null)
+            {
+                foreach (var translationUnit in _TranslationUnits)
+                {
+                    translationUnit.Target = translationUnit.Target.TrimStart(' ');
+                    translationUnit.Target = translationUnit.Target.TrimEnd(' ');
+                }
+
+                UpdateUnitListDisplay();
+            }
+        }
+
+
+        private void MainDataGrid_CurrentCellChanged(object sender, EventArgs e)
+        {
+            SetDirty(true);
+            UpdateUnitListDisplay();
+        }
+
+        private void SetDirty(bool newDirty)
+        {
+            _ItemsDirty = newDirty;
+            UpdateTitle();
+        }
+
+
+        private void ShowDublicatesOnlyToggle_Click(object sender, RoutedEventArgs e)
+        {
+            _IsShowDublicatesOnly = !_IsShowDublicatesOnly;
+            UpdateUnitListDisplay();
+        }
+
+        private void UpdateUnitListDisplay()
+        {
+            //Pre-Update
+            UpdateDublicates();
+
+            //Update
+            MainDataGrid.ItemsSource = _TranslationUnits;
+            MainDataGrid.Items.Refresh();
+
+            //Post-Update
+            if (_IsShowDublicatesOnly)
+                SortAscendingSource();
+        }
+
+        private void UpdateDublicates()
+        {
+            foreach (var translationUnit in _TranslationUnits)
+            {
+                translationUnit.IsVisible = !_IsShowDublicatesOnly;
+                translationUnit.IsMarked = false;
+            }
+
+            if (_IsShowDublicatesOnly)
+            {
+                var duplicates = _TranslationUnits.GroupBy(x => x.Source)
+                                                        .Where(g => g.Count() > 1)
+                                                        .ToList();
+
+                foreach (var duplicateGroup in duplicates)
+                {
+                    var referenceUnit = duplicateGroup.ElementAt(0);
+                    foreach (var dublicate in duplicateGroup)
+                    {
+                        dublicate.IsVisible = true;
+                        if (dublicate.Target.CompareTo(referenceUnit.Target) != 0)
+                        {
+                            referenceUnit.IsMarked = true;
+                            dublicate.IsMarked = true;
+                        }
+                    }
+                }
+            }
+        }
+
+        private void SortAscendingSource()
+        {
+            MainDataGrid.Items.SortDescriptions.Clear();
+            MainDataGrid.Items.SortDescriptions.Add(new SortDescription("Source", ListSortDirection.Ascending));
+            MainDataGrid.Items.Refresh();
+        }
+
     }
 }

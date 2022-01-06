@@ -75,6 +75,7 @@
     <Compile Include="Constants.cs" />
     <Compile Include="Parser\TranslationUnit.cs" />
     <Compile Include="Parser\XliffParser.cs" />
+    <Compile Include="ToolStates.cs" />
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
