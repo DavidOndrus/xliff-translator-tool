@@ -8,6 +8,7 @@ using System.Windows;
 using System.Xml;
 using XliffTranslatorTool.Parser;
 using System.Linq;
+using System.Text;
 
 namespace XliffTranslatorTool
 {
@@ -270,13 +271,18 @@ namespace XliffTranslatorTool
 
         private void WriteToFile(XmlDocument xmlDocument, string filePath)
         {
-            StringWriter stringWriter = new StringWriter();
-            xmlDocument.Save(stringWriter);
-            string indented = stringWriter.ToString().Replace("_AMP;_", "&").Replace("_LT;_", "<").Replace("_GT;_", ">");
-            using (StreamWriter streamWriter = new StreamWriter(filePath, false))
+            XmlWriterSettings settings = new XmlWriterSettings();
+            settings.Encoding = Encoding.GetEncoding("UTF-8");
+            settings.Indent = true;
+            using (XmlWriter writer = XmlWriter.Create(filePath, settings))
             {
-                streamWriter.Write(indented);
+                xmlDocument.Save(writer);
             }
+
+            string rawXML = File.ReadAllText(filePath);
+            string indented = rawXML.Replace("_AMP;_", "&").Replace("_LT;_", "<").Replace("_GT;_", ">");
+
+            File.WriteAllText(filePath, indented);
         }
 
         private static OpenFileDialog CreateOpenFileDialog()
